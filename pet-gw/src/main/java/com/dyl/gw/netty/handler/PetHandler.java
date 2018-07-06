@@ -1,6 +1,7 @@
 package com.dyl.gw.netty.handler;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -43,6 +44,11 @@ public class PetHandler extends ChannelInboundHandlerAdapter {
 
         String content = new String(bytes);
         log.info(content);
+
+        if (content.contains("INIT")){
+            String resp = "[ZJ*589468010000246*0001*0006*INIT,1]";
+            ctx.writeAndFlush(Unpooled.copiedBuffer(resp.getBytes()));
+        }
     }
 
     @Override
@@ -60,6 +66,7 @@ public class PetHandler extends ChannelInboundHandlerAdapter {
             IdleStateEvent event = (IdleStateEvent) evt;
             if (IdleState.READER_IDLE == event.state()) {
                 log.warn("读超时...[{}]...", key);
+                ctx.close();
             } else if (IdleState.WRITER_IDLE == event.state()) {
                 log.warn("写超时...");
             } else if (IdleState.ALL_IDLE == event.state()) {
