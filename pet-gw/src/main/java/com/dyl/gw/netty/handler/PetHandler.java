@@ -1,5 +1,6 @@
 package com.dyl.gw.netty.handler;
 
+import com.diyiliu.plugin.util.DateUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
@@ -9,6 +10,8 @@ import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Date;
 
 /**
  * Description: PetHandler
@@ -39,16 +42,55 @@ public class PetHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         ByteBuf buf = (ByteBuf) msg;
 
-        byte[] bytes = new byte[buf.readableBytes()];
+        // [ + 厂商 + *
+        byte[] headerBytes = new byte[4];
+        buf.readBytes(headerBytes);
+        String header = new String(headerBytes);
+
+        // 设备ID
+        byte[] deviceBytes = new byte[15];
+        buf.readBytes(deviceBytes);
+
+        String deviceId = new String(deviceBytes);
+
+        // * + 流水号 + * + 长度 + *
+        byte[] bytes = new byte[11];
         buf.readBytes(bytes);
 
-        String content = new String(bytes);
-        log.info(content);
+        String str1 = new String(bytes);
+        String[] strArray1 = str1.split("\\*");
 
-        if (content.contains("INIT")){
-            String resp = "[ZJ*589468010000246*0001*0006*INIT,1]";
-            ctx.writeAndFlush(Unpooled.copiedBuffer(resp.getBytes()));
+        int serial = Integer.parseInt(strArray1[1], 16);
+        int length = Integer.parseInt(strArray1[2], 16);
+
+        byte[] content = new byte[length];
+        buf.readBytes(content);
+        String str2 = new String(content);
+        String[] strArray2 = str2.split(",");
+
+        String cmd = strArray2[0];
+
+        switch (cmd){
+            case "INIT":
+                String resp1 = header + deviceId + "*" + serial + "*0006*INIT,1]";
+                ctx.writeAndFlush(Unpooled.copiedBuffer(resp1.getBytes()));
+
+                break;
+
+            case "LK":
+                String resp2 = header + deviceId + "*" + serial + "*0016*LK," + DateUtil.dateToString(new Date()).replace(" ", ",") + "]";
+                ctx.writeAndFlush(Unpooled.copiedBuffer(resp2.getBytes()));
+
+                break;
+
+            case "UD":
+
+                log.info("位置数据:[{}]", str2);
+                break;
+
+                default:log.info("未知指令[{}]", cmd);
         }
+
     }
 
     @Override
