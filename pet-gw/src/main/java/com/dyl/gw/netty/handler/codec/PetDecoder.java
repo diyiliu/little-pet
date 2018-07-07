@@ -1,9 +1,11 @@
 package com.dyl.gw.netty.handler.codec;
 
+import com.diyiliu.plugin.util.CommonUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
@@ -12,6 +14,8 @@ import java.util.List;
  * Author: DIYILIU
  * Update: 2018-07-06 09:51
  */
+
+@Slf4j
 public class PetDecoder extends ByteToMessageDecoder {
 
     @Override
@@ -63,6 +67,7 @@ public class PetDecoder extends ByteToMessageDecoder {
         byte[] bytes = new byte[31 + length];
         in.readBytes(bytes);
 
+        log.info("上行;[{}]", new String(bytes));
         out.add(Unpooled.copiedBuffer(bytes));
     }
 }

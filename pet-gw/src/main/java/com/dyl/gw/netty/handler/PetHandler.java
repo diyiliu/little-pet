@@ -72,13 +72,13 @@ public class PetHandler extends ChannelInboundHandlerAdapter {
 
         switch (cmd){
             case "INIT":
-                String resp1 = header + deviceId + "*" + serial + "*0006*INIT,1]";
+                String resp1 = header + deviceId + "*" + strArray1[1] + "*0006*INIT,1]";
                 ctx.writeAndFlush(Unpooled.copiedBuffer(resp1.getBytes()));
 
                 break;
 
             case "LK":
-                String resp2 = header + deviceId + "*" + serial + "*0016*LK," + DateUtil.dateToString(new Date()).replace(" ", ",") + "]";
+                String resp2 = header + deviceId + "*" + strArray1[1] + "*0016*LK," + DateUtil.dateToString(new Date()).replace(" ", ",") + "]";
                 ctx.writeAndFlush(Unpooled.copiedBuffer(resp2.getBytes()));
 
                 break;
