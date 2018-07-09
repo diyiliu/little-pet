@@ -1,10 +1,12 @@
+import com.diyiliu.plugin.util.CommonUtil;
 import com.diyiliu.plugin.util.DateUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import org.apache.commons.collections.CollectionUtils;
 import org.junit.Test;
 import sun.swing.SwingUtilities2;
 
-import java.util.Date;
+import java.util.*;
 
 /**
  * Description: TestMain
@@ -66,8 +68,69 @@ public class TestMain {
 
     @Test
     public void test3(){
-        String str = DateUtil.dateToString(new Date());
+        String str = "CF F2 79 BE 04 11 03 00 00 00".replace(" ", "");
+        byte[] bytes = CommonUtil.hexStringToBytes(str);
 
-        System.out.println(str.replace(" ", ","));
+        System.out.println(String.format("%X", CommonUtil.checkSum(bytes)));
+    }
+
+
+    @Test
+    public void test4(){
+        String str = "CF F2 79 BE 04 11 03 00".replace(" ", "");
+        byte[] bytes = CommonUtil.hexStringToBytes(str);
+
+        bytes = CommonUtil.bytesReverse(bytes);
+
+        System.out.println(CommonUtil.bytesToLong(bytes));
+    }
+
+    @Test
+    public void test5(){
+        String str = "28D4DE55F186BDA100";
+        //str = "BD BD BD BD F0 CF F2 79 BE 04 11 03 00 00 00".replace(" ", "");
+        byte[] bytes = CommonUtil.hexStringToBytes(str);
+
+        System.out.println(String.format("%02X", CommonUtil.checkSum(bytes)));
+    }
+
+
+    @Test
+    public void test6(){
+        String str = "28D4DE55";
+        byte[] bytes = CommonUtil.hexStringToBytes(str);
+
+        long t = CommonUtil.bytesToLong(bytes);
+
+        System.out.println(DateUtil.dateToString(new Date(t)));
+
+        Date now = new Date();
+        t = Long.valueOf(now.getTime()).intValue();
+
+        System.out.println(DateUtil.dateToString(new Date(t)));
+    }
+
+
+    @Test
+    public void test7(){
+        Date now = new Date();
+        int time = Long.valueOf(now.getTime()).intValue();
+        int code = now.hashCode();
+
+        ByteBuf buf = Unpooled.buffer(10);
+        buf.writeInt(time);
+        buf.writeByte(0xF1);
+        buf.writeInt(code);
+
+
+        byte[] bytes = new byte[9];
+        buf.readBytes(bytes);
+
+        byte check = CommonUtil.checkSum(bytes);
+        buf.writeByte(check);
+
+        bytes = buf.array();
+
+        System.out.println(CommonUtil.bytesToStr(bytes));
     }
 }
