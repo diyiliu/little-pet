@@ -1,0 +1,42 @@
+高德账号
+账号：15021294670    密码：xy123456
+key: 5577e6cf339dbe2376de0369149210bf
+
+智能硬件定位API
+1、wifi定位
+http://apilocate.amap.com/position
+?accesstype=1
+&output=json
+&key=5577e6cf339dbe2376de0369149210bf
+&imei=589468010000246
+&macs=dc:02:8e:4e:65:d9,iTV-LRYN|02:1a:11:f5:ca:cc,-85,Samele'V8|88:44:77:c9:5f:34,EXTRATYRE_2.4
+
+2、基站定位
+http://apilocate.amap.com/position
+?accesstype=0
+&output=json
+&key=5577e6cf339dbe2376de0369149210bf
+&imei=589468010000246
+&cmda=0&bts=460,0,21238,10920,57&nearbts=460,0,21238,19102,57|460,0,21238,13006,49|460,0,21238,10921,41|460,0,21238,19976,39|460,0,21238,8907,38
+
+
+返回结果
+{
+    "infocode": "10000",
+    "result": {
+        "city": "徐州市",
+        "province": "江苏省",
+        "poi": "诺万科技大厦",
+        "adcode": "320305",
+        "street": "杨山路",
+        "desc": "江苏省 徐州市 贾汪区 杨山路 靠近诺万科技大厦",
+        "country": "中国",
+        "type": "3",
+        "location": "117.2649875,34.2873991",
+        "road": "杨山路",
+        "radius": "100",
+        "citycode": "0516"
+    },
+    "info": "OK",
+    "status": "1"
+}
