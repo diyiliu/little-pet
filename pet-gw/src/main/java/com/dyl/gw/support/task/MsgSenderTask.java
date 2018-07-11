@@ -48,7 +48,6 @@ public class MsgSenderTask implements ITask, Runnable {
             String cmd = msg.getCmd();
             byte[] content = msg.getContent();
 
-
             if (onlineCacheProvider.containsKey(device)) {
                 log.info("下行, 设备[{}], 指令[{}],  内容: {}", device, cmd, new String(content));
 
@@ -57,7 +56,7 @@ public class MsgSenderTask implements ITask, Runnable {
 
                 // 记录原始指令
                 RawData rawData = new RawData();
-                rawData.setImei(device);
+                rawData.setDevice(device);
                 rawData.setCmd(cmd);
                 rawData.setData(new String(content));
                 rawData.setFlow("下行");

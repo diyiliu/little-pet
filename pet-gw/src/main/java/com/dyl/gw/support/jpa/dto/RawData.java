@@ -20,7 +20,7 @@ public class RawData {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String imei;
+    private String device;
 
     private String cmd;
 
