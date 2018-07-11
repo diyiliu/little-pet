@@ -4,5 +4,19 @@
     <annotationProcessing>
       <profile default="true" name="Default" enabled="true" />
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="dyl-plugin_main" target="1.8" />
+      <module name="dyl-plugin_test" target="1.8" />
+      <module name="GIT-dyl-plugin_main" target="1.8" />
+      <module name="GIT-dyl-plugin_test" target="1.8" />
+      <module name="GIT-little-pet_main" target="1.8" />
+      <module name="GIT-little-pet_test" target="1.8" />
+      <module name="little-pet-pet-gw_main" target="1.8" />
+      <module name="little-pet-pet-gw_test" target="1.8" />
+      <module name="little-pet_main" target="1.8" />
+      <module name="little-pet_test" target="1.8" />
+      <module name="pet-gw_main" target="1.8" />
+      <module name="pet-gw_test" target="1.8" />
+    </bytecodeTargetLevel>
   </component>
 </project>

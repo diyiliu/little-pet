@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/2100193396/dyl-plugin.iml" filepath="$PROJECT_DIR$/.idea/modules/2100193396/dyl-plugin.iml" group="dyl-plugin" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/2100193396/dyl-plugin_main.iml" filepath="$PROJECT_DIR$/.idea/modules/2100193396/dyl-plugin_main.iml" group="dyl-plugin" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/2100193396/dyl-plugin_test.iml" filepath="$PROJECT_DIR$/.idea/modules/2100193396/dyl-plugin_test.iml" group="dyl-plugin" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/little-pet.iml" filepath="$PROJECT_DIR$/.idea/modules/little-pet.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/little-pet_main.iml" filepath="$PROJECT_DIR$/.idea/modules/little-pet_main.iml" group="little-pet" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/little-pet_test.iml" filepath="$PROJECT_DIR$/.idea/modules/little-pet_test.iml" group="little-pet" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/pet-gw/pet-gw.iml" filepath="$PROJECT_DIR$/.idea/modules/pet-gw/pet-gw.iml" group="pet-gw" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/pet-gw/pet-gw_main.iml" filepath="$PROJECT_DIR$/.idea/modules/pet-gw/pet-gw_main.iml" group="pet-gw" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/pet-gw/pet-gw_test.iml" filepath="$PROJECT_DIR$/.idea/modules/pet-gw/pet-gw_test.iml" group="pet-gw" />
+    </modules>
+  </component>
+</project>
