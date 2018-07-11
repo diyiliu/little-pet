@@ -67,7 +67,7 @@ public class PetDecoder extends ByteToMessageDecoder {
         byte[] bytes = new byte[31 + length];
         in.readBytes(bytes);
 
-        log.info("上行;[{}]", new String(bytes));
+        log.info("上行;{}", new String(bytes));
         out.add(Unpooled.copiedBuffer(bytes));
     }
 }
