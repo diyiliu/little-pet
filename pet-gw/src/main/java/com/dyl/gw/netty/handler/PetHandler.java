@@ -5,6 +5,8 @@ import com.diyiliu.plugin.model.MsgPipeline;
 import com.diyiliu.plugin.model.SendMsg;
 import com.diyiliu.plugin.util.DateUtil;
 import com.diyiliu.plugin.util.SpringUtil;
+import com.dyl.gw.support.jpa.dto.RawData;
+import com.dyl.gw.support.jpa.facade.RawDataJpa;
 import com.dyl.gw.support.task.MsgSenderTask;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
@@ -54,11 +56,6 @@ public class PetHandler extends ChannelInboundHandlerAdapter {
         String[] strArray = content.split(",");
         String cmd = strArray[0];
 
-        // 保持在线
-        ICache onlineCacheProvider = SpringUtil.getBean("onlineCacheProvider");
-        onlineCacheProvider.put(device, new MsgPipeline(ctx, System.currentTimeMillis()));
-        log.info("上行, 设备[{}], 命令[{}],  内容: {}", device, cmd, text);
-
         switch (cmd) {
             case "INIT":
                 String resp1 = "[" + factory + "*" + device + "*" + array[1] + "*0006*INIT,1]";
@@ -81,6 +78,20 @@ public class PetHandler extends ChannelInboundHandlerAdapter {
                 log.info("未知指令[{}]", cmd);
         }
 
+        // 保持在线
+        ICache onlineCacheProvider = SpringUtil.getBean("onlineCacheProvider");
+        onlineCacheProvider.put(device, new MsgPipeline(ctx, System.currentTimeMillis()));
+        log.info("上行, 设备[{}], 命令[{}],  内容: {}", device, cmd, text);
+
+        // 记录原始指令
+        RawData rawData = new RawData();
+        rawData.setImei(device);
+        rawData.setCmd(cmd);
+        rawData.setData(text);
+        rawData.setDatetime(new Date());
+
+        RawDataJpa rawDataJpa = SpringUtil.getBean("rawDataJpa");
+        rawDataJpa.save(rawData);
     }
 
     @Override
