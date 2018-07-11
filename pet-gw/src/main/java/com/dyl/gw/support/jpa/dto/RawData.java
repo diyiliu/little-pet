@@ -26,5 +26,7 @@ public class RawData {
 
     private String data;
 
+    private String flow;
+
     private Date datetime;
 }

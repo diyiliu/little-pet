@@ -38,7 +38,6 @@ public class GwConfig {
     @Bean
     public MsgSenderTask msgSenderTask() {
         MsgSenderTask senderTask = new MsgSenderTask();
-        senderTask.setOnlineCacheProvider(onlineCacheProvider());
         senderTask.execute();
 
         return senderTask;

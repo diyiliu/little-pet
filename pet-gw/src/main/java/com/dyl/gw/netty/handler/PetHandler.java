@@ -58,13 +58,13 @@ public class PetHandler extends ChannelInboundHandlerAdapter {
 
         switch (cmd) {
             case "INIT":
-                String resp1 = "[" + factory + "*" + device + "*" + array[1] + "*0006*INIT,1]";
+                String resp1 = "[" + factory + "*" + device + "*" + array[2] + "*0006*INIT,1]";
                 toSend(device, cmd, serial, resp1.getBytes());
 
                 break;
 
             case "LK":
-                String resp2 = "[" + factory + "*" + device + "*" + array[1] + "*0016*LK," + DateUtil.dateToString(new Date()).replace(" ", ",") + "]";
+                String resp2 = "[" + factory + "*" + device + "*" + array[2] + "*0016*LK," + DateUtil.dateToString(new Date()).replace(" ", ",") + "]";
                 toSend(device, cmd, serial, resp2.getBytes());
 
                 break;
@@ -81,13 +81,14 @@ public class PetHandler extends ChannelInboundHandlerAdapter {
         // 保持在线
         ICache onlineCacheProvider = SpringUtil.getBean("onlineCacheProvider");
         onlineCacheProvider.put(device, new MsgPipeline(ctx, System.currentTimeMillis()));
-        log.info("上行, 设备[{}], 命令[{}],  内容: {}", device, cmd, text);
+        log.info("上行, 设备[{}], 指令[{}],  内容: {}", device, cmd, text);
 
         // 记录原始指令
         RawData rawData = new RawData();
         rawData.setImei(device);
         rawData.setCmd(cmd);
         rawData.setData(text);
+        rawData.setFlow("上行");
         rawData.setDatetime(new Date());
 
         RawDataJpa rawDataJpa = SpringUtil.getBean("rawDataJpa");
