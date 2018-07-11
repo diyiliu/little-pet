@@ -1,11 +1,13 @@
 import com.diyiliu.plugin.util.CommonUtil;
 import com.diyiliu.plugin.util.DateUtil;
+import com.diyiliu.plugin.util.GpsCorrectUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.Test;
 import sun.swing.SwingUtilities2;
 
+import java.nio.charset.Charset;
 import java.util.*;
 
 /**
@@ -43,7 +45,7 @@ public class TestMain {
 
 
     @Test
-    public void test1(){
+    public void test1() {
         String str = "[ZJ*589468010000246*0019*002c*INIT,FFFFFFFFFFF,1,S1_C2_CN_V1.1.1,0000,0000]";
 
         ByteBuf buf = Unpooled.copiedBuffer(str.getBytes());
@@ -58,7 +60,7 @@ public class TestMain {
     }
 
     @Test
-    public void test2(){
+    public void test2() {
         String str = "*0019*002c*";
         String[] strArray = str.split("\\*");
 
@@ -67,16 +69,25 @@ public class TestMain {
 
 
     @Test
-    public void test3(){
-        String str = "CF F2 79 BE 04 11 03 00 00 00".replace(" ", "");
+    public void test3() {
+        String str = "BDBDBDBDA100504E0A6D775E024E0A6D775E026D664E1C65B0533A67689AD84E2D8DE" +
+                "F002F79BB745E6D6695E88BCA90E87EA6003600367C73002F79BB534E7F8E8FBE592791525E9" +
+                "7505C8F66573A7EA6003800377C73";
         byte[] bytes = CommonUtil.hexStringToBytes(str);
 
-        System.out.println(String.format("%X", CommonUtil.checkSum(bytes)));
+//        System.out.println(String.format("%X", CommonUtil.checkSum(bytes)));
+
+        str = "4E0A6D775E024E0A6D775E026D664E1C65B0533A67689AD84E2D8DE" +
+                "F002F79BB745E6D6695E88BCA90E87EA6003600367C73002F79BB534E7F8E8FBE592791525E9" +
+                "7505C8F66573A7EA6003800377C73";
+
+        bytes = CommonUtil.hexStringToBytes(str);
+        System.out.println(new String(bytes));
     }
 
 
     @Test
-    public void test4(){
+    public void test4() {
         String str = "CF F2 79 BE 04 11 03 00".replace(" ", "");
         byte[] bytes = CommonUtil.hexStringToBytes(str);
 
@@ -86,7 +97,7 @@ public class TestMain {
     }
 
     @Test
-    public void test5(){
+    public void test5() {
         String str = "28D4DE55F186BDA100";
         //str = "BD BD BD BD F0 CF F2 79 BE 04 11 03 00 00 00".replace(" ", "");
         byte[] bytes = CommonUtil.hexStringToBytes(str);
@@ -96,7 +107,7 @@ public class TestMain {
 
 
     @Test
-    public void test6(){
+    public void test6() {
         String str = "28D4DE55";
         byte[] bytes = CommonUtil.hexStringToBytes(str);
 
@@ -111,8 +122,11 @@ public class TestMain {
     }
 
 
+    /**
+     * 登录应答
+     */
     @Test
-    public void test7(){
+    public void test7() {
         Date now = new Date();
         int time = Long.valueOf(now.getTime()).intValue();
         int code = now.hashCode();
@@ -132,5 +146,47 @@ public class TestMain {
         bytes = buf.array();
 
         System.out.println(CommonUtil.bytesToStr(bytes));
+    }
+
+
+    @Test
+    public void test8() {
+        Date now = new Date();
+        int time = Long.valueOf(now.getTime()).intValue();
+
+        ByteBuf buf = Unpooled.buffer(22);
+        //buf.writeInt(time);
+        buf.writeBytes(new byte[]{(byte) 0xBD, (byte) 0xBD, (byte) 0xBD, (byte) 0xBD});
+        buf.writeByte(0xA3);
+        buf.writeLong(0l);
+        buf.writeLong(0l);
+
+
+        byte[] bytes = new byte[21];
+        buf.readBytes(bytes);
+
+        byte check = CommonUtil.checkSum(bytes);
+        buf.writeByte(check);
+
+        bytes = buf.array();
+
+        System.out.println(CommonUtil.bytesToStr(bytes));
+    }
+
+
+    @Test
+    public void test9(){
+        double lat = 34.2873991;
+        double lng = 117.264987;
+
+/*
+        lat = 34.2828852;
+        lng = 117.2599542;
+*/
+
+        double[] location = GpsCorrectUtil.gcj02_To_Gps84(lat, lng);
+
+        System.out.println(location[0] + "," + location[1]);
+
     }
 }

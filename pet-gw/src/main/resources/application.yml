@@ -1,0 +1,22 @@
+server:
+  port: 8080
+
+# SPRING
+spring:
+  # DATASOURCE
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.jdbc.Driver
+    url: 'jdbc:mysql://106.15.89.145:3306/pet?useUnicode=true&characterEncoding=UTF-8'
+    username: root
+    password: 123456
+
+  #json
+  jackson:
+    locale: zh_CN
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+
+# LOGGING
+logging:
+  config: 'classpath:logback.xml'

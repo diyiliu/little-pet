@@ -1,9 +1,9 @@
-plugins {
-    id 'java'
-}
+group 'com.tiza'
+version '2.0'
 
-group 'com.dyl'
-version '1.0'
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
 
 sourceCompatibility = 1.8
 
@@ -11,14 +11,49 @@ repositories {
     mavenLocal()
     mavenCentral()
     jcenter()
+    maven { url "https://repo.spring.io/snapshot" }
+    maven { url "https://repo.spring.io/milestone" }
+}
+
+ext {
+    springBootVersion = '2.0.0.RELEASE'
+    swaggerVersion = '2.6.1'
 }
 
 dependencies {
     compile project(':dyl-plugin')
 
-    // spring-jpa
-    compile group: 'org.springframework.data', name: 'spring-data-jpa', version: '2.0.0.RELEASE'
-    compile group: 'org.hibernate', name: 'hibernate-entitymanager', version: '5.0.1.Final'
+    // spring-boot
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: "$springBootVersion"
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: "$springBootVersion"
+    compile group: 'org.springframework.boot', name: 'spring-boot-configuration-processor', version: "$springBootVersion"
+
+    compile group: 'io.springfox', name: 'springfox-swagger-ui', version:"$swaggerVersion"
+    compile group: 'io.springfox', name: 'springfox-swagger2', version: "$swaggerVersion"
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
+bootJar {
+    baseName = 'pet-gw'
+    version = ''
+}
+
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        jcenter()
+        maven { url 'https://repo.spring.io/snapshot' }
+        maven { url 'https://repo.spring.io/milestone' }
+    }
+
+    dependencies {
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:2.0.0.BUILD-SNAPSHOT'
+    }
+}
+
