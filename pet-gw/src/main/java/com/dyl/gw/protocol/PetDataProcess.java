@@ -38,22 +38,25 @@ public class PetDataProcess {
 
         // 初始化
         if ("INIT".equals(cmd)){
-            String resp1 = "[" + factory + "*" + device + "*" + String.format("%04X", serial) + "*0006*INIT,1]";
-            respCmd(device, cmd, serial, resp1.getBytes());
+            String resp = "[" + factory + "*" + device + "*" + String.format("%04X", serial) + "*0006*INIT,1]";
+            respCmd(device, cmd, serial, resp.getBytes());
 
             return;
         }
 
         // 心跳
         if ("LK".equals(cmd)){
-            String resp2 = "[" + factory + "*" + device + "*" + String.format("%04X", serial) + "*0016*LK," + DateUtil.dateToString(new Date()).replace(" ", ",") + "]";
-            respCmd(device, cmd, serial, resp2.getBytes());
+            String resp = "[" + factory + "*" + device + "*" + String.format("%04X", serial) + "*0016*LK," + DateUtil.dateToString(new Date()).replace(" ", ",") + "]";
+            respCmd(device, cmd, serial, resp.getBytes());
 
             return;
         }
 
         // 位置
         if ("UD".equals(cmd)){
+            String resp = "[" + factory + "*" + device + "*" + String.format("%04X", serial) + "*0002*UD]";
+            respCmd(device, cmd, serial, resp.getBytes());
+
             log.info("位置: [{}]", msgBody.getContent());
 
             return;
