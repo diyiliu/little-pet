@@ -3,11 +3,9 @@ package com.dyl.gw.netty.handler;
 import com.diyiliu.plugin.cache.ICache;
 import com.diyiliu.plugin.model.MsgPipeline;
 import com.diyiliu.plugin.model.SendMsg;
-import com.diyiliu.plugin.util.CommonUtil;
 import com.diyiliu.plugin.util.DateUtil;
 import com.diyiliu.plugin.util.SpringUtil;
 import com.dyl.gw.support.task.MsgSenderTask;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -43,55 +41,40 @@ public class PetHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
-        String content = (String) msg;
+        String text = (String) msg;
 
-        String str = content.substring(1, content.length() - 2);
+        String str = text.substring(1, text.length() - 2);
         String[] array = str.split("\\*");
 
         String factory = array[0];
-
         String device = array[1];
+        int serial = Integer.parseInt(array[2], 16);
 
-        int serial =
-
-        // * + 流水号 + * + 长度 + *
-        byte[] array1 = new byte[11];
-        buf.readBytes(array1);
-
-        String str1 = new String(array1);
-        String[] strArray1 = str1.split("\\*");
-
-        int serial = Integer.parseInt(strArray1[1], 16);
-        int length = Integer.parseInt(strArray1[2], 16);
-
-        byte[] array2 = new byte[length];
-        buf.readBytes(array2);
-        String str2 = new String(array2);
-        String[] strArray2 = str2.split(",");
-
-        String cmd = strArray2[0];
+        String content = array[4];
+        String[] strArray = content.split(",");
+        String cmd = strArray[0];
 
         // 保持在线
         ICache onlineCacheProvider = SpringUtil.getBean("onlineCacheProvider");
-        onlineCacheProvider.put(deviceId, new MsgPipeline(ctx, System.currentTimeMillis()));
-        log.info("上行, 设备[{}], 命令[{}],  内容: {}", deviceId, cmd, content);
+        onlineCacheProvider.put(device, new MsgPipeline(ctx, System.currentTimeMillis()));
+        log.info("上行, 设备[{}], 命令[{}],  内容: {}", device, cmd, text);
 
         switch (cmd) {
             case "INIT":
-                String resp1 = header + deviceId + "*" + strArray1[1] + "*0006*INIT,1]";
-                toSend(deviceId, cmd, serial, resp1.getBytes());
+                String resp1 = "[" + factory + "*" + device + "*" + array[1] + "*0006*INIT,1]";
+                toSend(device, cmd, serial, resp1.getBytes());
 
                 break;
 
             case "LK":
-                String resp2 = header + deviceId + "*" + strArray1[1] + "*0016*LK," + DateUtil.dateToString(new Date()).replace(" ", ",") + "]";
-                toSend(deviceId, cmd, serial, resp2.getBytes());
+                String resp2 = "[" + factory + "*" + device + "*" + array[1] + "*0016*LK," + DateUtil.dateToString(new Date()).replace(" ", ",") + "]";
+                toSend(device, cmd, serial, resp2.getBytes());
 
                 break;
 
             case "UD":
 
-                log.info("位置数据:[{}]", str2);
+                log.info("位置数据:[{}]", content);
                 break;
 
             default:

@@ -4,7 +4,6 @@ import com.diyiliu.plugin.cache.ICache;
 import com.diyiliu.plugin.model.MsgPipeline;
 import com.diyiliu.plugin.model.SendMsg;
 import com.diyiliu.plugin.task.ITask;
-import com.diyiliu.plugin.util.CommonUtil;
 import io.netty.buffer.Unpooled;
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,7 +41,7 @@ public class MsgSenderTask implements ITask, Runnable {
             byte[] content = msg.getContent();
 
             if (onlineCacheProvider.containsKey(device)) {
-                log.info("下行, 设备[{}], 指令[{}, {}]", device, cmd, CommonUtil.bytesToStr(content));
+                log.info("下行, 设备[{}], 指令[{}, {}]", device, cmd, new String(content));
 
                 MsgPipeline pipeline = (MsgPipeline) onlineCacheProvider.get(device);
                 pipeline.getContext().writeAndFlush(Unpooled.copiedBuffer(content));

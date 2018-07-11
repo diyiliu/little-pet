@@ -26,8 +26,6 @@ public class GwConfig {
     @Resource
     private Environment environment;
 
-
-
     @Bean
     public PetServer petServer() {
         PetServer gwServer = new PetServer();
@@ -65,7 +63,6 @@ public class GwConfig {
 
         return new SpringUtil();
     }
-
 
     /**
      * 设备在线

@@ -1,8 +1,6 @@
 package com.dyl.gw.netty.handler.codec;
 
-import com.diyiliu.plugin.util.CommonUtil;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import lombok.extern.slf4j.Slf4j;

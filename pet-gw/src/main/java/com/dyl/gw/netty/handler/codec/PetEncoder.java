@@ -20,11 +20,6 @@ public class PetEncoder extends MessageToByteEncoder {
 
         if (buf.readableBytes() > 0){
 
-            buf.markReaderIndex();
-            byte[] bytes = new byte[buf.readableBytes()];
-            buf.readBytes(bytes);
-            buf.resetReaderIndex();
-
             out.writeBytes(buf);
         }
     }
