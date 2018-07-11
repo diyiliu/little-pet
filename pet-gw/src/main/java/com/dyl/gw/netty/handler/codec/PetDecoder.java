@@ -31,17 +31,14 @@ public class PetDecoder extends ByteToMessageDecoder {
 
         // 厂商
         in.readShort();
-
         byte mark = in.readByte();
 
         // 设备ID
         in.readBytes(new byte[15]);
-
         mark = in.readByte();
 
         // 流水号
         in.readInt();
-
         mark = in.readByte();
 
         // 内容长度
@@ -55,7 +52,6 @@ public class PetDecoder extends ByteToMessageDecoder {
             in.resetReaderIndex();
             return;
         }
-
         mark = in.readByte();
 
         byte[] content = new byte[length];
@@ -67,7 +63,6 @@ public class PetDecoder extends ByteToMessageDecoder {
         byte[] bytes = new byte[31 + length];
         in.readBytes(bytes);
 
-        log.info("上行;{}", new String(bytes));
-        out.add(Unpooled.copiedBuffer(bytes));
+        out.add(new String(bytes));
     }
 }

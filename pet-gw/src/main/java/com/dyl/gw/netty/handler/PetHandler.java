@@ -1,14 +1,18 @@
 package com.dyl.gw.netty.handler;
 
+import com.diyiliu.plugin.cache.ICache;
+import com.diyiliu.plugin.model.MsgPipeline;
+import com.diyiliu.plugin.model.SendMsg;
+import com.diyiliu.plugin.util.CommonUtil;
 import com.diyiliu.plugin.util.DateUtil;
+import com.diyiliu.plugin.util.SpringUtil;
+import com.dyl.gw.support.task.MsgSenderTask;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
-import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Date;
@@ -21,7 +25,6 @@ import java.util.Date;
 
 @Slf4j
 public class PetHandler extends ChannelInboundHandlerAdapter {
-    private final AttributeKey<String> attributeKey = AttributeKey.valueOf("PET_KEY");
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
@@ -40,46 +43,49 @@ public class PetHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
-        ByteBuf buf = (ByteBuf) msg;
+        String content = (String) msg;
 
-        // [ + 厂商 + *
-        byte[] headerBytes = new byte[4];
-        buf.readBytes(headerBytes);
-        String header = new String(headerBytes);
+        String str = content.substring(1, content.length() - 2);
+        String[] array = str.split("\\*");
 
-        // 设备ID
-        byte[] deviceBytes = new byte[15];
-        buf.readBytes(deviceBytes);
+        String factory = array[0];
 
-        String deviceId = new String(deviceBytes);
+        String device = array[1];
+
+        int serial =
 
         // * + 流水号 + * + 长度 + *
-        byte[] bytes = new byte[11];
-        buf.readBytes(bytes);
+        byte[] array1 = new byte[11];
+        buf.readBytes(array1);
 
-        String str1 = new String(bytes);
+        String str1 = new String(array1);
         String[] strArray1 = str1.split("\\*");
 
         int serial = Integer.parseInt(strArray1[1], 16);
         int length = Integer.parseInt(strArray1[2], 16);
 
-        byte[] content = new byte[length];
-        buf.readBytes(content);
-        String str2 = new String(content);
+        byte[] array2 = new byte[length];
+        buf.readBytes(array2);
+        String str2 = new String(array2);
         String[] strArray2 = str2.split(",");
 
         String cmd = strArray2[0];
 
-        switch (cmd){
+        // 保持在线
+        ICache onlineCacheProvider = SpringUtil.getBean("onlineCacheProvider");
+        onlineCacheProvider.put(deviceId, new MsgPipeline(ctx, System.currentTimeMillis()));
+        log.info("上行, 设备[{}], 命令[{}],  内容: {}", deviceId, cmd, content);
+
+        switch (cmd) {
             case "INIT":
                 String resp1 = header + deviceId + "*" + strArray1[1] + "*0006*INIT,1]";
-                ctx.writeAndFlush(Unpooled.copiedBuffer(resp1.getBytes()));
+                toSend(deviceId, cmd, serial, resp1.getBytes());
 
                 break;
 
             case "LK":
                 String resp2 = header + deviceId + "*" + strArray1[1] + "*0016*LK," + DateUtil.dateToString(new Date()).replace(" ", ",") + "]";
-                ctx.writeAndFlush(Unpooled.copiedBuffer(resp2.getBytes()));
+                toSend(deviceId, cmd, serial, resp2.getBytes());
 
                 break;
 
@@ -88,7 +94,8 @@ public class PetHandler extends ChannelInboundHandlerAdapter {
                 log.info("位置数据:[{}]", str2);
                 break;
 
-                default:log.info("未知指令[{}]", cmd);
+            default:
+                log.info("未知指令[{}]", cmd);
         }
 
     }
@@ -115,5 +122,15 @@ public class PetHandler extends ChannelInboundHandlerAdapter {
                 log.warn("读/写超时...");
             }
         }
+    }
+
+    private void toSend(String device, String cmd, int serial, byte[] content) {
+        SendMsg msg = new SendMsg();
+        msg.setDevice(device);
+        msg.setCmd(cmd);
+        msg.setSerial(serial);
+        msg.setContent(content);
+
+        MsgSenderTask.send(msg);
     }
 }

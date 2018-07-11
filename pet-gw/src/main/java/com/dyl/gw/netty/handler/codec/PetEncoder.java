@@ -24,7 +24,6 @@ public class PetEncoder extends MessageToByteEncoder {
             byte[] bytes = new byte[buf.readableBytes()];
             buf.readBytes(bytes);
             buf.resetReaderIndex();
-            log.info("下行;{}", new String(bytes));
 
             out.writeBytes(buf);
         }
