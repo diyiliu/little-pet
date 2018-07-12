@@ -4,8 +4,8 @@ import com.diyiliu.plugin.cache.ICache;
 import com.diyiliu.plugin.model.MsgPipeline;
 import com.diyiliu.plugin.task.ITask;
 import com.diyiliu.plugin.util.DateUtil;
-import com.dyl.gw.support.jpa.dto.PetGps;
-import com.dyl.gw.support.jpa.facade.PetGpsJpa;
+import com.dyl.gw.support.jpa.dto.PetGpsCur;
+import com.dyl.gw.support.jpa.facade.PetGpsCurJpa;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Resource;
@@ -30,7 +30,7 @@ public class KeepAliveTask implements ITask, Runnable {
     private ICache onlineCacheProvider;
 
     @Resource
-    private PetGpsJpa petGpsJpa;
+    private PetGpsCurJpa petGpsCurJpa;
 
     @Override
     public void execute() {
@@ -52,9 +52,9 @@ public class KeepAliveTask implements ITask, Runnable {
 
                 // 设备离线
                 String device = (String) e;
-                PetGps petGps = petGpsJpa.findByDeviceId(device);
-                petGps.setStatus(0);
-                petGpsJpa.save(petGps);
+                PetGpsCur curGps = petGpsCurJpa.findByDeviceId(device);
+                curGps.setStatus(0);
+                petGpsCurJpa.save(curGps);
             }
         });
     }

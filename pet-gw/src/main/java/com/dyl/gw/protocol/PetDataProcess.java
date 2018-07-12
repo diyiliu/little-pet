@@ -5,8 +5,12 @@ import com.diyiliu.plugin.model.MsgPipeline;
 import com.diyiliu.plugin.model.SendMsg;
 import com.diyiliu.plugin.util.DateUtil;
 import com.diyiliu.plugin.util.GpsCorrectUtil;
+import com.diyiliu.plugin.util.JacksonUtil;
+import com.dyl.gw.support.jpa.dto.PetGpsCur;
 import com.dyl.gw.support.jpa.dto.PetGps;
-import com.dyl.gw.support.jpa.facade.PetGpsJpa;
+import com.dyl.gw.support.jpa.dto.PetGpsHis;
+import com.dyl.gw.support.jpa.facade.PetGpsCurJpa;
+import com.dyl.gw.support.jpa.facade.PetGpsHisJpa;
 import com.dyl.gw.support.model.BtsInfo;
 import com.dyl.gw.support.model.MsgBody;
 import com.dyl.gw.support.model.Position;
@@ -18,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -34,7 +39,10 @@ public class PetDataProcess {
     private ICache onlineCacheProvider;
 
     @Resource
-    private PetGpsJpa petGpsJpa;
+    private PetGpsCurJpa petGpsCurJpa;
+
+    @Resource
+    private PetGpsHisJpa petGpsHisJpa;
 
     @Resource
     private GdLocationUtil locationUtil;
@@ -61,21 +69,24 @@ public class PetDataProcess {
             return;
         }
 
-        PetGps petGps = petGpsJpa.findByDeviceId(device);
+        PetGpsCur curGps = petGpsCurJpa.findByDeviceId(device);
+        long petId = curGps.getId();
+
         // 心跳
         if ("LK".equals(cmd)) {
             String resp = "[" + factory + "*" + device + "*" + String.format("%04X", serial) + "*0016*LK," + DateUtil.dateToString(new Date()).replace(" ", ",") + "]";
             respCmd(device, cmd, serial, resp.getBytes());
 
+
             int voltage = Integer.valueOf(msgArray[msgArray.length - 1]);
             if (msgArray.length > 2) {
                 int step = Integer.valueOf(msgArray[1]);
-                petGps.setStep(step);
+                curGps.setStep(step);
             }
-            petGps.setVoltage(voltage);
-            petGps.setSystemTime(new Date());
-            petGps.setStatus(1);
-            petGpsJpa.save(petGps);
+            curGps.setVoltage(voltage);
+            curGps.setSystemTime(new Date());
+            curGps.setStatus(1);
+            petGpsCurJpa.save(curGps);
 
             return;
         }
@@ -115,6 +126,7 @@ public class PetDataProcess {
             int signal = Integer.valueOf(msgArray[12]);
             int voltage = Integer.valueOf(msgArray[13]);
 
+            PetGps petGps = new PetGps();
             petGps.setSpeed(speed);
             petGps.setDirection(direction);
             petGps.setAltitude(altitude);
@@ -126,6 +138,8 @@ public class PetDataProcess {
 
             String terminalStatus = msgArray[16];
             Position position = null;
+            String btsJson = "";
+            String wifiJson = "";
             try {
                 int btsCount = Integer.valueOf(msgArray[17]);
                 int from = 19;
@@ -152,6 +166,7 @@ public class PetDataProcess {
                         btsInfoList.add(btsInfo);
                     }
 
+                    btsJson = JacksonUtil.toJson(btsInfoList);
                     // 基站定位
                     position = locationUtil.btsLocation(device, btsInfoList);
                 }
@@ -178,6 +193,8 @@ public class PetDataProcess {
                             wifiInfoList.add(wifiInfo);
                         }
 
+                        wifiJson = JacksonUtil.toJson(wifiInfoList);
+                        // wifi定位
                         Position wifiPosition = locationUtil.wifiLocation(device, wifiInfoList);
                         if (position == null) {
                             // 基站定位
@@ -196,8 +213,10 @@ public class PetDataProcess {
                     if (position.getType() > 0) {
                         String[] lngLat = position.getLocation().split(",");
 
-                        lng = Double.valueOf(lngLat[0]);
-                        lat = Double.valueOf(lngLat[1]);
+                        // GCJ_02 -> GPS_84 火星坐标系转原始坐标系
+                        double[] latLng = GpsCorrectUtil.gcj02_To_Gps84(Double.valueOf(lngLat[1]), Double.valueOf(lngLat[0]));
+                        lat = latLng[0];
+                        lng = latLng[1];
                         location = position.getMode();
                     }
                 }
@@ -224,13 +243,39 @@ public class PetDataProcess {
                 }
             }
             petGps.setSystemTime(new Date());
-            petGps.setStatus(1);
-            petGpsJpa.save(petGps);
+
+            String gpsJson = JacksonUtil.toJson(petGps);
+            // 更新当前位置
+            updateGps(device, petId, gpsJson, btsJson, wifiJson);
+
+            log.info("更新设备[{}]当前位置 ...", device);
 
             return;
         }
 
         log.warn("未知: {}", msgBody.toString());
+    }
+
+    private void updateGps(String deviceId, long petId, String gpsJson, String btsJson, String wifiJson){
+        try {
+            // 1、更新当前位置信息
+            PetGpsCur gpsCur = JacksonUtil.toObject(gpsJson, PetGpsCur.class);
+            gpsCur.setId(petId);
+            gpsCur.setDeviceId(deviceId);
+            gpsCur.setStatus(1);
+
+            petGpsCurJpa.save(gpsCur);
+
+            // 2、插入轨迹数据
+            PetGpsHis gpsHis = JacksonUtil.toObject(gpsJson, PetGpsHis.class);
+            gpsHis.setPetId(petId);
+            gpsHis.setBtsData(btsJson);
+            gpsHis.setWifiData(wifiJson);
+
+            petGpsHisJpa.save(gpsHis);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private Date toDate(String dmy, String hms) {

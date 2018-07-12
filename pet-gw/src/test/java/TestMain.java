@@ -1,13 +1,12 @@
 import com.diyiliu.plugin.util.CommonUtil;
 import com.diyiliu.plugin.util.DateUtil;
 import com.diyiliu.plugin.util.GpsCorrectUtil;
+import com.dyl.gw.support.jpa.dto.PetGpsCur;
+import com.dyl.gw.support.jpa.dto.PetGps;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.apache.commons.collections.CollectionUtils;
 import org.junit.Test;
-import sun.swing.SwingUtilities2;
 
-import java.nio.charset.Charset;
 import java.util.*;
 
 /**
@@ -188,5 +187,15 @@ public class TestMain {
 
         System.out.println(location[0] + "," + location[1]);
 
+    }
+
+    @Test
+    public void test10(){
+
+        PetGps petGps = new PetGps();
+        petGps.setSpeed(1.0);
+
+        PetGpsCur curGps = (PetGpsCur) petGps;
+        System.out.println(curGps.getSpeed());
     }
 }

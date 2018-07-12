@@ -12,15 +12,8 @@ import java.util.Date;
  */
 
 @Data
-@Entity
-@Table(name = "pet_gps")
+@MappedSuperclass
 public class PetGps {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    private String deviceId;
 
     private Date systemTime;
 
@@ -63,7 +56,4 @@ public class PetGps {
 
     /** 百分比*/
     private Integer voltage;
-
-    /** 设备在线状态 0:离线, 1:在线*/
-    private Integer status;
 }
