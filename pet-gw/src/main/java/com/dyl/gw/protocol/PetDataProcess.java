@@ -4,6 +4,7 @@ import com.diyiliu.plugin.cache.ICache;
 import com.diyiliu.plugin.model.MsgPipeline;
 import com.diyiliu.plugin.model.SendMsg;
 import com.diyiliu.plugin.util.DateUtil;
+import com.diyiliu.plugin.util.GpsCorrectUtil;
 import com.dyl.gw.support.jpa.dto.PetGps;
 import com.dyl.gw.support.jpa.facade.PetGpsJpa;
 import com.dyl.gw.support.model.BtsInfo;
@@ -17,10 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Description: PetDataProcess
@@ -76,6 +74,7 @@ public class PetDataProcess {
             }
             petGps.setVoltage(voltage);
             petGps.setSystemTime(new Date());
+            petGps.setStatus(1);
             petGpsJpa.save(petGps);
 
             return;
@@ -88,6 +87,8 @@ public class PetDataProcess {
 
             String dmy = msgArray[1];
             String hms = msgArray[2];
+
+            Date gpsTime = toDate(dmy, hms);
 
             int location = 0;
             double lat = 0;
@@ -110,14 +111,20 @@ public class PetDataProcess {
             double speed = Double.valueOf(msgArray[8]);
             double direction = Double.valueOf(msgArray[9]);
             double altitude = Double.valueOf(msgArray[10]);
-
             int satellite = Integer.valueOf(msgArray[11]);
             int signal = Integer.valueOf(msgArray[12]);
             int voltage = Integer.valueOf(msgArray[13]);
 
+            petGps.setSpeed(speed);
+            petGps.setDirection(direction);
+            petGps.setAltitude(altitude);
+            petGps.setSatellite(satellite);
+            petGps.setSignal(signal);
+            petGps.setVoltage(voltage);
+
+            petGps.setGpsTime(gpsTime);
 
             String terminalStatus = msgArray[16];
-
             Position position = null;
             try {
                 int btsCount = Integer.valueOf(msgArray[17]);
@@ -149,7 +156,7 @@ public class PetDataProcess {
                     position = locationUtil.btsLocation(device, btsInfoList);
                 }
 
-                if (btsArray.length > to) {
+                if (msgArray.length > to) {
                     int wifiCount = Integer.valueOf(msgArray[to]);
 
                     from = to + 1;
@@ -176,7 +183,7 @@ public class PetDataProcess {
                             // 基站定位
                             position = wifiPosition;
                         } else {
-                            if (wifiPosition != null && wifiPosition.getRadius() > position.getRadius()) {
+                            if (wifiPosition != null && wifiPosition.getRadius() < position.getRadius()) {
                                 // 基站定位
                                 position = wifiPosition;
                             }
@@ -185,9 +192,8 @@ public class PetDataProcess {
                 }
 
                 // 定位方式
-                if (location == 0 && position != null){
-
-                    if (position.getType() > 0){
+                if (location == 0 && position != null) {
+                    if (position.getType() > 0) {
                         String[] lngLat = position.getLocation().split(",");
 
                         lng = Double.valueOf(lngLat[0]);
@@ -199,10 +205,55 @@ public class PetDataProcess {
                 e.printStackTrace();
             }
 
+            petGps.setLocation(location);
+            // 有效定位
+            if (location > 0){
+                petGps.setWgs84Lat(lat);
+                petGps.setWgs84Lng(lng);
+
+                double[] latLng = GpsCorrectUtil.gps84_To_Gcj02(lat, lng);
+                petGps.setGcj02Lat(latLng[0]);
+                petGps.setGcj02Lng(latLng[1]);
+
+                latLng = GpsCorrectUtil.gps84_To_bd09(lat, lng);
+                petGps.setBd09Lat(latLng[0]);
+                petGps.setBd09Lng(latLng[1]);
+
+                if (position != null){
+                    petGps.setAddress(position.getAddress());
+                }
+            }
+            petGps.setSystemTime(new Date());
+            petGps.setStatus(1);
+            petGpsJpa.save(petGps);
+
             return;
         }
 
         log.warn("未知: {}", msgBody.toString());
+    }
+
+    private Date toDate(String dmy, String hms) {
+        int day = Integer.valueOf(dmy.substring(0, 2));
+        int month = Integer.valueOf(dmy.substring(2, 4));
+        int year = 2000 + Integer.valueOf(dmy.substring(4));
+
+        int hour = Integer.valueOf(hms.substring(0, 2));
+        int minute = Integer.valueOf(hms.substring(2, 4));
+        int second = Integer.valueOf(hms.substring(4));
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(0);
+
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.MONTH, month - 1);
+        calendar.set(Calendar.DAY_OF_MONTH, day);
+
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.MINUTE, minute);
+        calendar.set(Calendar.SECOND, second);
+
+        return calendar.getTime();
     }
 
     private void respCmd(String device, String cmd, int serial, byte[] content) {

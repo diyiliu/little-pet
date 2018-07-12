@@ -61,7 +61,6 @@ public class GwConfig {
     @Bean
     public KeepAliveTask keepAliveTask() {
         KeepAliveTask aliveTask = new KeepAliveTask();
-        aliveTask.setOnlineCacheProvider(onlineCacheProvider());
         aliveTask.execute();
 
         return aliveTask;

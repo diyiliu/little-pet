@@ -6,15 +6,11 @@ import com.dyl.gw.support.model.GdLocation;
 import com.dyl.gw.support.model.Position;
 import com.dyl.gw.support.model.WifiInfo;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Description: GdLocationUtil
@@ -42,18 +38,17 @@ public class GdLocationUtil {
             }
         }
 
-        Map paramMap = new HashMap();
-        paramMap.put("accesstype", 0);
-        paramMap.put("cmda", 0);
-        paramMap.put("output", "json");
-        paramMap.put("key", "5577e6cf339dbe2376de0369149210bf");
-        paramMap.put("imei", imei);
-        paramMap.put("bts", bts);
+        StringBuffer strBuf = new StringBuffer("?");
+        strBuf.append("accesstype=0").
+        append("&cmda=0").
+        append("&output=json").
+        append("&key=").append(userKey).
+        append("&imei=").append(imei).
+        append("&bts=").append(bts);
         if (StringUtils.isNotEmpty(nearBts)) {
-            paramMap.put("nearbts", nearBts.substring(1));
+            strBuf.append("&nearbts=").append(nearBts.substring(1));
         }
-
-        amapUrl += "?accesstype=0&imei=589468010000246&key=5577e6cf339dbe2376de0369149210bf&cmda=0&bts=460,0,21238,10920,57&nearbts=460,0,21238,10920,57|460,0,21238,13006,49|460,0,21238,10921,41|460,0,21238,19976,39|460,0,21238,8907,38&output=json";
+        amapUrl += strBuf.toString();
 
         ResponseEntity<String> responseEntity = restTemplate.getForEntity(amapUrl, String.class);
         GdLocation location = JacksonUtil.toObject(responseEntity.getBody(), GdLocation.class);
@@ -68,22 +63,21 @@ public class GdLocationUtil {
     }
 
     public Position wifiLocation(String imei, List<WifiInfo> wifiInfoList) throws Exception {
-
         String macs = "";
         for (int i = 0; i < wifiInfoList.size(); i++) {
             WifiInfo wifiInfo = wifiInfoList.get(i);
             macs += "|" + wifiInfo.toString();
         }
 
-        Map paramMap = new HashMap();
-        paramMap.put("accesstype", 1);
-        paramMap.put("output", "json");
-        paramMap.put("key", userKey);
-        paramMap.put("imei", imei);
-        paramMap.put("macs", macs.substring(1));
+        StringBuffer strBuf = new StringBuffer("?");
+        strBuf.append("accesstype=1").
+                append("&output=json").
+                append("&key=").append(userKey).
+                append("&imei=").append(imei).
+                append("&macs=").append(macs.substring(1));
+        amapUrl += strBuf.toString();
 
-        HttpEntity<String> requestEntity = new HttpEntity(paramMap);
-        ResponseEntity<String> responseEntity = restTemplate.exchange(amapUrl, HttpMethod.GET, requestEntity, String.class);
+        ResponseEntity<String> responseEntity = restTemplate.getForEntity(amapUrl, String.class);
         GdLocation location = JacksonUtil.toObject(responseEntity.getBody(), GdLocation.class);
         if (location.getStatus() == 1) {
             Position position = location.getResult();

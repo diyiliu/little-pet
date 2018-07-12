@@ -4,8 +4,11 @@ import com.diyiliu.plugin.cache.ICache;
 import com.diyiliu.plugin.model.MsgPipeline;
 import com.diyiliu.plugin.task.ITask;
 import com.diyiliu.plugin.util.DateUtil;
+import com.dyl.gw.support.jpa.dto.PetGps;
+import com.dyl.gw.support.jpa.facade.PetGpsJpa;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.annotation.Resource;
 import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -20,10 +23,14 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class KeepAliveTask implements ITask, Runnable {
-    private final static int MSG_IDLE = 10 * 60 * 1000;
+    private final static int MSG_IDLE = 5 * 60 * 1000;
     private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
 
+    @Resource
     private ICache onlineCacheProvider;
+
+    @Resource
+    private PetGpsJpa petGpsJpa;
 
     @Override
     public void execute() {
@@ -39,14 +46,16 @@ public class KeepAliveTask implements ITask, Runnable {
             MsgPipeline pipeline = (MsgPipeline) onlineCacheProvider.get(e);
             if (System.currentTimeMillis() - pipeline.getTime() > MSG_IDLE ||
                     !pipeline.getContext().channel().isOpen()){
+                log.info("设备离线[{}], 检测时间[{}]", e, DateUtil.dateToString(new Date()));
 
                 onlineCacheProvider.remove(e);
-                log.info("设备离线[{}], 检测时间[{}]", e, DateUtil.dateToString(new Date()));
+
+                // 设备离线
+                String device = (String) e;
+                PetGps petGps = petGpsJpa.findByDeviceId(device);
+                petGps.setStatus(0);
+                petGpsJpa.save(petGps);
             }
         });
-    }
-
-    public void setOnlineCacheProvider(ICache onlineCacheProvider) {
-        this.onlineCacheProvider = onlineCacheProvider;
     }
 }

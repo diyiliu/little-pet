@@ -77,7 +77,6 @@ public class PetHandler extends ChannelInboundHandlerAdapter {
             IdleStateEvent event = (IdleStateEvent) evt;
             if (IdleState.READER_IDLE == event.state()) {
                 log.warn("读超时...[{}]...", key);
-                //ctx.close();
             } else if (IdleState.WRITER_IDLE == event.state()) {
                 log.warn("写超时...");
             } else if (IdleState.ALL_IDLE == event.state()) {

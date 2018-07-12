@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 
 @Slf4j
-public class PetServer extends Thread{
+public class PetServer extends Thread {
     private int port;
 
     public void init() {
@@ -42,7 +42,7 @@ public class PetServer extends Thread{
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel ch) {
-                            ch.pipeline().addLast(new IdleStateHandler(300, 0, 0))
+                            ch.pipeline().addLast(new IdleStateHandler(2 * 60, 0, 0))
                                     .addLast(new PetDecoder())
                                     .addLast(new PetEncoder())
                                     .addLast(new PetHandler());
