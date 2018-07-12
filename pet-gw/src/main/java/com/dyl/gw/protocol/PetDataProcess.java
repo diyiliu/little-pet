@@ -224,6 +224,7 @@ public class PetDataProcess {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+                log.error("高德定位异常! 基站: {}, WIFI: {}", btsJson, wifiJson);
             }
 
             petGps.setLocation(location);
