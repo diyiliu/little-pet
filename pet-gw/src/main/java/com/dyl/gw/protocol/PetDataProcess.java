@@ -134,6 +134,7 @@ public class PetDataProcess {
             petGps.setSignal(signal);
             petGps.setVoltage(voltage);
 
+            petGps.setStep(curGps.getStep());
             petGps.setGpsTime(gpsTime);
 
             String terminalStatus = msgArray[16];
