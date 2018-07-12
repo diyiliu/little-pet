@@ -134,6 +134,7 @@ public class PetDataProcess {
             petGps.setSignal(signal);
             petGps.setVoltage(voltage);
 
+            // 查询当前步数
             petGps.setStep(curGps.getStep());
             petGps.setGpsTime(gpsTime);
 
