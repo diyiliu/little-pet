@@ -6,10 +6,14 @@ import com.diyiliu.plugin.util.SpringUtil;
 import com.dyl.gw.netty.server.PetServer;
 import com.dyl.gw.support.task.KeepAliveTask;
 import com.dyl.gw.support.task.MsgSenderTask;
+import com.dyl.gw.support.util.GdLocationUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 
@@ -25,6 +29,17 @@ public class GwConfig {
 
     @Resource
     private Environment environment;
+
+
+    @Bean
+    public GdLocationUtil locationUtil(){
+        GdLocationUtil locationUtil = new GdLocationUtil();
+        locationUtil.setAmapUrl(environment.getProperty("gd.url"));
+        locationUtil.setUserKey(environment.getProperty("gd.key"));
+
+        return locationUtil;
+    }
+
 
     @Bean
     public PetServer petServer() {
@@ -72,5 +87,29 @@ public class GwConfig {
     public ICache onlineCacheProvider() {
 
         return new RamCacheProvider();
+    }
+
+    /**
+     * 宠物缓存
+     *
+     * @return
+     */
+    @Bean
+    public ICache petCacheProvider() {
+
+        return new RamCacheProvider();
+    }
+
+    @Bean
+    public RestTemplate restTemplate(ClientHttpRequestFactory factory) {
+        return new RestTemplate(factory);
+    }
+
+    @Bean
+    public ClientHttpRequestFactory simpleClientHttpRequestFactory() {
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setReadTimeout(180000);
+        factory.setConnectTimeout(15000);
+        return factory;
     }
 }

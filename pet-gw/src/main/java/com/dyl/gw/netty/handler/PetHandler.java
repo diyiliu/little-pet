@@ -38,7 +38,7 @@ public class PetHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         String text = (String) msg;
 
-        String str = text.substring(1, text.length() - 2);
+        String str = text.substring(1, text.length() - 1);
         String[] array = str.split("\\*");
 
         String factory = array[0];

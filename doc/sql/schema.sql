@@ -19,7 +19,7 @@ create table pet_gps
    gcj02_lng            numeric(12,8) comment '高德经度',
    bd09_lat             numeric(12,8) comment '百度纬度',
    bd09_lng             numeric(12,8) comment '百度经度',
-   location             int comment '定位状态(0:无效定位,1:GPS定位,2:WIFI定位,3:基站定位)',
+   location             int comment '定位状态(0:无效定位,1:GPS定位, 2:基站定位, 3:WIFI定位)',
    step                 int comment '步数',
    speed                numeric(5,2) comment '速度',
    direction            int comment '方向',
