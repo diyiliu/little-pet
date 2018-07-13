@@ -1,9 +1,13 @@
 package com.dyl.gw.support.jpa.dto;
 
+import com.dyl.gw.support.model.BtsInfo;
+import com.dyl.gw.support.model.WifiInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Description: PetGps
@@ -56,4 +60,17 @@ public class PetGps {
 
     /** 百分比*/
     private Integer voltage;
+
+    /** petId ,deviceId*/
+    @Transient
+    @JsonIgnore
+    private String petKey;
+
+    @Transient
+    @JsonIgnore
+    private List<BtsInfo> btsInfoList;
+
+    @Transient
+    @JsonIgnore
+    private List<WifiInfo> wifiInfoList;
 }

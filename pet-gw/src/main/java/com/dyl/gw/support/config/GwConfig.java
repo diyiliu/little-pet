@@ -5,6 +5,7 @@ import com.diyiliu.plugin.cache.ram.RamCacheProvider;
 import com.diyiliu.plugin.util.SpringUtil;
 import com.dyl.gw.netty.server.PetServer;
 import com.dyl.gw.support.task.KeepAliveTask;
+import com.dyl.gw.support.task.LocationTask;
 import com.dyl.gw.support.task.MsgSenderTask;
 import com.dyl.gw.support.util.GdLocationUtil;
 import org.springframework.context.annotation.Bean;
@@ -48,6 +49,14 @@ public class GwConfig {
         gwServer.init();
 
         return gwServer;
+    }
+
+    @Bean
+    public LocationTask locationTask(){
+        LocationTask locationTask = new LocationTask();
+        locationTask.execute();
+
+        return locationTask;
     }
 
     @Bean
@@ -108,7 +117,7 @@ public class GwConfig {
     public ClientHttpRequestFactory simpleClientHttpRequestFactory() {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setReadTimeout(180000);
-        factory.setConnectTimeout(15000);
+        factory.setConnectTimeout(120000);
         return factory;
     }
 }

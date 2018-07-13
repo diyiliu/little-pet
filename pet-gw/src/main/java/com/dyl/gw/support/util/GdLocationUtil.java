@@ -27,9 +27,18 @@ public class GdLocationUtil {
 
     private String userKey;
 
+    /**
+     * 基站定位
+     *
+     * @param imei
+     * @param btsInfoList (取前三个基站,太多414 错误)
+     * @return
+     * @throws Exception
+     */
     public Position btsLocation(String imei, List<BtsInfo> btsInfoList) throws Exception {
         String bts = btsInfoList.get(0).toString();
 
+        // int length = btsInfoList.size() > 3 ? 3 : btsInfoList.size();
         String nearBts = "";
         if (btsInfoList.size() > 1) {
             for (int i = 1; i < btsInfoList.size(); i++) {
@@ -40,11 +49,11 @@ public class GdLocationUtil {
 
         StringBuffer strBuf = new StringBuffer("?");
         strBuf.append("accesstype=0").
-        append("&cmda=0").
-        append("&output=json").
-        append("&key=").append(userKey).
-        append("&imei=").append(imei).
-        append("&bts=").append(bts);
+                append("&cmda=0").
+                append("&output=json").
+                append("&key=").append(userKey).
+                append("&imei=").append(imei).
+                append("&bts=").append(bts);
         if (StringUtils.isNotEmpty(nearBts)) {
             strBuf.append("&nearbts=").append(nearBts.substring(1));
         }
@@ -63,6 +72,8 @@ public class GdLocationUtil {
     }
 
     public Position wifiLocation(String imei, List<WifiInfo> wifiInfoList) throws Exception {
+        //int length = wifiInfoList.size() > 3 ? 3 : wifiInfoList.size();
+
         String macs = "";
         for (int i = 0; i < wifiInfoList.size(); i++) {
             WifiInfo wifiInfo = wifiInfoList.get(i);

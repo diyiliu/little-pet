@@ -1,7 +1,5 @@
 package com.dyl.gw.support.jpa.dto;
 
-import lombok.Data;
-
 import javax.persistence.*;
 
 /**
