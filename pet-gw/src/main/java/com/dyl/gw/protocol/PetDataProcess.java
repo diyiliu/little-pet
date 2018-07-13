@@ -87,7 +87,6 @@ public class PetDataProcess {
 
             String dmy = msgArray[1];
             String hms = msgArray[2];
-
             Date gpsTime = toDate(dmy, hms);
 
             int location = 0;
