@@ -14,7 +14,7 @@ import lombok.Data;
 public class Position {
 
     /** 0: 无结果, 其他正常*/
-    private Integer type;
+    private Integer  type;
 
     private String province;
 

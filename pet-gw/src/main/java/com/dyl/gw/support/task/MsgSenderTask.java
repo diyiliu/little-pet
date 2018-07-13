@@ -36,7 +36,7 @@ public class MsgSenderTask implements ITask, Runnable {
 
     @Override
     public void execute() {
-        executorService.scheduleAtFixedRate(this, 3, 10, TimeUnit.SECONDS);
+        executorService.scheduleAtFixedRate(this, 10, 3, TimeUnit.SECONDS);
     }
 
     @Override

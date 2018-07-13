@@ -49,7 +49,7 @@ public class LocationTask implements ITask, Runnable {
 
     @Override
     public void execute() {
-        executorService.scheduleWithFixedDelay(this, 1, 10, TimeUnit.SECONDS);
+        executorService.scheduleAtFixedRate(this, 10, 1, TimeUnit.SECONDS);
     }
 
     @Override
@@ -83,7 +83,8 @@ public class LocationTask implements ITask, Runnable {
                     // 基站定位
                     position = wfPosition;
                 } else {
-                    if (wfPosition != null && wfPosition.getRadius() < position.getRadius()) {
+                    if (wfPosition != null && wfPosition.getType() > 0
+                            && wfPosition.getRadius() <= position.getRadius()) {
                         // 基站定位
                         position = wfPosition;
                     }

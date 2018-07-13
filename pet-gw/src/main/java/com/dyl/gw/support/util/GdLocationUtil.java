@@ -41,11 +41,11 @@ public class GdLocationUtil {
      */
     public Position btsLocation(String imei, List<BtsInfo> btsInfoList) {
         String bts = btsInfoList.get(0).toString();
-        int length = btsInfoList.size() > 3 ? 3 : btsInfoList.size();
+        // int length = btsInfoList.size() > 3 ? 3 : btsInfoList.size();
 
         String nearBts = "";
         if (btsInfoList.size() > 1) {
-            for (int i = 1; i < length; i++) {
+            for (int i = 1; i < btsInfoList.size(); i++) {
                 BtsInfo btsInfo = btsInfoList.get(i);
                 nearBts += "|" + btsInfo.toString();
             }
@@ -61,11 +61,11 @@ public class GdLocationUtil {
         if (StringUtils.isNotEmpty(nearBts)) {
             strBuf.append("&nearbts=").append(nearBts.substring(1));
         }
-        amapUrl += strBuf.toString();
 
+        String url = amapUrl + strBuf.toString();
         try {
-            ResponseEntity<String> responseEntity = restTemplate.getForEntity(amapUrl, String.class);
-            log.info("基站定位: {}", responseEntity.getBody());
+            ResponseEntity<String> responseEntity = restTemplate.getForEntity(url, String.class);
+            log.info("基站定位[{}], 结果:{}", url, responseEntity.getBody());
 
             GdLocation location = JacksonUtil.toObject(responseEntity.getBody(), GdLocation.class);
             if (location.getStatus() == 1) {
@@ -73,20 +73,22 @@ public class GdLocationUtil {
                 position.setMode(2);
 
                 return position;
+            } else {
+                log.warn("基站定位异常: {}", url);
             }
         } catch (Exception e) {
             e.printStackTrace();
-            log.error("基站定位异常: {}!", amapUrl);
+            log.error("基站定位异常: {}!", url);
         }
 
         return null;
     }
 
     public Position wifiLocation(String imei, List<WifiInfo> wifiInfoList) {
-        int length = wifiInfoList.size() > 3 ? 3 : wifiInfoList.size();
+        // int length = wifiInfoList.size() > 3 ? 3 : wifiInfoList.size();
 
         String macs = "";
-        for (int i = 0; i < length; i++) {
+        for (int i = 0; i < wifiInfoList.size(); i++) {
             WifiInfo wifiInfo = wifiInfoList.get(i);
             macs += "|" + wifiInfo.toString();
         }
@@ -97,11 +99,11 @@ public class GdLocationUtil {
                 append("&key=").append(userKey).
                 append("&imei=").append(imei).
                 append("&macs=").append(macs.substring(1));
-        amapUrl += strBuf.toString();
 
+        String url = amapUrl + strBuf.toString();
         try {
-            ResponseEntity<String> responseEntity = restTemplate.getForEntity(amapUrl, String.class);
-            log.info("WIFI定位: {}", responseEntity.getBody());
+            ResponseEntity<String> responseEntity = restTemplate.getForEntity(url, String.class);
+            log.info("WIFI定位[{}], 结果:{}", url, responseEntity.getBody());
 
             GdLocation location = JacksonUtil.toObject(responseEntity.getBody(), GdLocation.class);
             if (location.getStatus() == 1) {
@@ -109,10 +111,12 @@ public class GdLocationUtil {
                 position.setMode(3);
 
                 return position;
+            } else {
+                log.warn("WIFI定位异常: {}", url);
             }
         } catch (IOException e) {
             e.printStackTrace();
-            log.error("WIFI定位异常: {}!", amapUrl);
+            log.error("WIFI定位异常: {}!", url);
         }
 
         return null;

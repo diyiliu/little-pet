@@ -34,7 +34,7 @@ public class KeepAliveTask implements ITask, Runnable {
 
     @Override
     public void execute() {
-        executorService.scheduleWithFixedDelay(this, 30, 30, TimeUnit.SECONDS);
+        executorService.scheduleWithFixedDelay(this, 60, 30, TimeUnit.SECONDS);
     }
 
     @Override
