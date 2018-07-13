@@ -65,7 +65,7 @@ public class GdLocationUtil {
         String url = amapUrl + strBuf.toString();
         try {
             ResponseEntity<String> responseEntity = restTemplate.getForEntity(url, String.class);
-            log.info("基站定位[{}], 结果:{}", url, responseEntity.getBody());
+            // log.info("基站定位[{}], 结果:{}", url, responseEntity.getBody());
 
             GdLocation location = JacksonUtil.toObject(responseEntity.getBody(), GdLocation.class);
             if (location.getStatus() == 1) {
@@ -103,7 +103,7 @@ public class GdLocationUtil {
         String url = amapUrl + strBuf.toString();
         try {
             ResponseEntity<String> responseEntity = restTemplate.getForEntity(url, String.class);
-            log.info("WIFI定位[{}], 结果:{}", url, responseEntity.getBody());
+            // log.info("WIFI定位[{}], 结果:{}", url, responseEntity.getBody());
 
             GdLocation location = JacksonUtil.toObject(responseEntity.getBody(), GdLocation.class);
             if (location.getStatus() == 1) {

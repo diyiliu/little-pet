@@ -14,6 +14,7 @@ import com.dyl.gw.support.model.WifiInfo;
 import com.dyl.gw.support.util.GdLocationUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -49,7 +50,7 @@ public class LocationTask implements ITask, Runnable {
 
     @Override
     public void execute() {
-        executorService.scheduleAtFixedRate(this, 10, 1, TimeUnit.SECONDS);
+        executorService.scheduleAtFixedRate(this, 5, 1, TimeUnit.SECONDS);
     }
 
     @Override
@@ -64,7 +65,7 @@ public class LocationTask implements ITask, Runnable {
             // GPS 定位
             if (location == 1) {
                 updateGps(petGps);
-                log.info("更新设备[{}]当前位置, GPS有效定位 ...", device);
+                log.info("更新设备[{}]位置, GPS有效定位。", device);
 
                 return;
             }
@@ -72,21 +73,24 @@ public class LocationTask implements ITask, Runnable {
             Position position = null;
             List<BtsInfo> btsInfoList = petGps.getBtsInfoList();
             List<WifiInfo> wifiInfoList = petGps.getWifiInfoList();
-            if (CollectionUtils.isNotEmpty(btsInfoList)) {
-                position = locationUtil.btsLocation(device, btsInfoList);
-            }
 
+            // 优先wifi定位
             if (CollectionUtils.isNotEmpty(wifiInfoList)) {
                 Position wfPosition = locationUtil.wifiLocation(device, wifiInfoList);
 
-                if (position == null) {
-                    // 基站定位
+                if (wfPosition != null && wfPosition.getType() > 0) {
+                    // wifi定位
                     position = wfPosition;
-                } else {
-                    if (wfPosition != null && wfPosition.getType() > 0
-                            && wfPosition.getRadius() <= position.getRadius()) {
-                        // 基站定位
-                        position = wfPosition;
+                }
+            }
+
+            if (CollectionUtils.isNotEmpty(btsInfoList)) {
+                Position btsPosition = locationUtil.btsLocation(device, btsInfoList);
+
+                if (btsPosition != null && btsPosition.getType() > 0) {
+                    if (position == null || btsPosition.getRadius() < position.getRadius()) {
+                        // 采用基站定位
+                        position = btsPosition;
                     }
                 }
             }
@@ -106,11 +110,11 @@ public class LocationTask implements ITask, Runnable {
                 petGps.setLocation(position.getMode());
                 petGps.setAddress(position.getAddress());
 
-                info = "地址: " + petGps.getAddress() + ", 半径:  " + position.getRadius();
+                info = "地址: " + petGps.getAddress() + ", 半径:  " + position.getRadius() + ", 定位方式: " + position.getMode();
             }
 
             updateGps(petGps);
-            log.info("更新设备[{}]当前位置, {}。", device, info);
+            log.info("更新设备[{}]位置, {}。", device, StringUtils.isEmpty(info) ? "无效定位" : info);
         }
     }
 
