@@ -12,6 +12,7 @@ import com.dyl.gw.support.model.MsgBody;
 import com.dyl.gw.support.model.WifiInfo;
 import com.dyl.gw.support.task.LocationTask;
 import com.dyl.gw.support.task.MsgSenderTask;
+import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -36,6 +37,22 @@ public class PetDataProcess {
     private PetGpsCurJpa petGpsCurJpa;
 
 
+    private List<String> ackCmds = new ArrayList();
+
+    public PetDataProcess() {
+
+        // 上报间隔
+        ackCmds.add("UPLOAD");
+        // 实时定位
+        ackCmds.add("CR");
+        // 关机
+        ackCmds.add("POWEROFF");
+        // 重启
+        ackCmds.add("RESET");
+        // 寻找设备
+        ackCmds.add("FIND");
+    }
+
     public void parse(MsgBody msgBody, ChannelHandlerContext ctx) {
         String cmd = msgBody.getCmd();
         String factory = msgBody.getFactory();
@@ -58,7 +75,7 @@ public class PetDataProcess {
             return;
         }
 
-        PetGpsCur curGps = petGpsCurJpa.findByDeviceId(device);
+        PetGpsCur curGps = petGpsCurJpa.findByDevice(device);
         long petId = curGps.getId();
 
         // 心跳
@@ -189,6 +206,13 @@ public class PetDataProcess {
 
             // 添加位置处理队列
             LocationTask.dealUD(petGps);
+            return;
+        }
+
+        // 下发指令应答
+        if (ackCmds.contains(cmd)){
+            log.info("设备[{}]应答[{}]。", device, content);
+
             return;
         }
 

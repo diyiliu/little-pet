@@ -10,5 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface PetGpsCurJpa extends JpaRepository<PetGpsCur, Long> {
 
-    PetGpsCur findByDeviceId(String deviceId);
+    PetGpsCur findByDevice(String device);
+
+    PetGpsCur findById(long id);
 }

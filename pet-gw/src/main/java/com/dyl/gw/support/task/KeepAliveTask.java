@@ -53,7 +53,7 @@ public class KeepAliveTask implements ITask, Runnable {
 
                 // 设备离线
                 String device = (String) e;
-                PetGpsCur curGps = petGpsCurJpa.findByDeviceId(device);
+                PetGpsCur curGps = petGpsCurJpa.findByDevice(device);
                 curGps.setStatus(0);
                 petGpsCurJpa.save(curGps);
             }

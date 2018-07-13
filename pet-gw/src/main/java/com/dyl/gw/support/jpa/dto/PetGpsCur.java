@@ -16,7 +16,7 @@ public class PetGpsCur extends PetGps{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String deviceId;
+    private String device;
 
     /** 设备在线状态 0:离线, 1:在线*/
     private Integer status;
@@ -29,12 +29,12 @@ public class PetGpsCur extends PetGps{
         this.id = id;
     }
 
-    public String getDeviceId() {
-        return deviceId;
+    public String getDevice() {
+        return device;
     }
 
-    public void setDeviceId(String deviceId) {
-        this.deviceId = deviceId;
+    public void setDevice(String device) {
+        this.device = device;
     }
 
     public Integer getStatus() {

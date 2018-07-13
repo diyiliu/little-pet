@@ -138,14 +138,14 @@ public class LocationTask implements ITask, Runnable {
             // 1、更新当前位置信息
             PetGpsCur gpsCur = JacksonUtil.toObject(gpsJson, PetGpsCur.class);
             gpsCur.setId(deviceId);
-            gpsCur.setDeviceId(device);
+            gpsCur.setDevice(device);
             gpsCur.setStatus(1);
 
             petGpsCurJpa.save(gpsCur);
 
             // 2、插入轨迹数据
             PetGpsHis gpsHis = JacksonUtil.toObject(gpsJson, PetGpsHis.class);
-            gpsHis.setPetId(deviceId);
+            gpsHis.setDeviceId(deviceId);
             gpsHis.setBtsData(JacksonUtil.toJson(petGps.getBtsInfoList()));
             gpsHis.setWifiData(JacksonUtil.toJson(petGps.getWifiInfoList()));
 

@@ -18,7 +18,7 @@ public class PetGpsHis extends PetGps{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long petId;
+    private Long deviceId;
 
     private String btsData;
 
@@ -32,12 +32,12 @@ public class PetGpsHis extends PetGps{
         this.id = id;
     }
 
-    public Long getPetId() {
-        return petId;
+    public Long getDeviceId() {
+        return deviceId;
     }
 
-    public void setPetId(Long petId) {
-        this.petId = petId;
+    public void setDeviceId(Long deviceId) {
+        this.deviceId = deviceId;
     }
 
     public String getBtsData() {
