@@ -72,27 +72,22 @@ public class LocationTask implements ITask, Runnable {
             Position position = null;
             List<BtsInfo> btsInfoList = petGps.getBtsInfoList();
             List<WifiInfo> wifiInfoList = petGps.getWifiInfoList();
-            try {
-                if (CollectionUtils.isNotEmpty(btsInfoList)) {
-                    position = locationUtil.btsLocation(device, btsInfoList);
-                }
+            if (CollectionUtils.isNotEmpty(btsInfoList)) {
+                position = locationUtil.btsLocation(device, btsInfoList);
+            }
 
-                if (CollectionUtils.isNotEmpty(wifiInfoList)) {
-                    Position wfPosition = locationUtil.wifiLocation(device, wifiInfoList);
+            if (CollectionUtils.isNotEmpty(wifiInfoList)) {
+                Position wfPosition = locationUtil.wifiLocation(device, wifiInfoList);
 
-                    if (position == null) {
+                if (position == null) {
+                    // 基站定位
+                    position = wfPosition;
+                } else {
+                    if (wfPosition != null && wfPosition.getRadius() < position.getRadius()) {
                         // 基站定位
                         position = wfPosition;
-                    } else {
-                        if (wfPosition != null && wfPosition.getRadius() < position.getRadius()) {
-                            // 基站定位
-                            position = wfPosition;
-                        }
                     }
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-                log.error("高德定位异常: {}!", e.getMessage());
             }
 
             String info = "";

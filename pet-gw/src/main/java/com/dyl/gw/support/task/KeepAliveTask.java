@@ -49,6 +49,7 @@ public class KeepAliveTask implements ITask, Runnable {
                 log.info("设备离线[{}], 检测时间[{}]", e, DateUtil.dateToString(new Date()));
 
                 onlineCacheProvider.remove(e);
+                pipeline.getContext().close();
 
                 // 设备离线
                 String device = (String) e;

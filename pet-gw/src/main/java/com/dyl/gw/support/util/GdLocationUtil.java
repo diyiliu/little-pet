@@ -5,11 +5,13 @@ import com.dyl.gw.support.model.BtsInfo;
 import com.dyl.gw.support.model.GdLocation;
 import com.dyl.gw.support.model.Position;
 import com.dyl.gw.support.model.WifiInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -18,6 +20,7 @@ import java.util.List;
  * Update: 2018-07-12 10:27
  */
 
+@Slf4j
 public class GdLocationUtil {
 
     @Resource
@@ -27,6 +30,7 @@ public class GdLocationUtil {
 
     private String userKey;
 
+
     /**
      * 基站定位
      *
@@ -35,13 +39,13 @@ public class GdLocationUtil {
      * @return
      * @throws Exception
      */
-    public Position btsLocation(String imei, List<BtsInfo> btsInfoList) throws Exception {
+    public Position btsLocation(String imei, List<BtsInfo> btsInfoList) {
         String bts = btsInfoList.get(0).toString();
+        int length = btsInfoList.size() > 3 ? 3 : btsInfoList.size();
 
-        // int length = btsInfoList.size() > 3 ? 3 : btsInfoList.size();
         String nearBts = "";
         if (btsInfoList.size() > 1) {
-            for (int i = 1; i < btsInfoList.size(); i++) {
+            for (int i = 1; i < length; i++) {
                 BtsInfo btsInfo = btsInfoList.get(i);
                 nearBts += "|" + btsInfo.toString();
             }
@@ -59,23 +63,30 @@ public class GdLocationUtil {
         }
         amapUrl += strBuf.toString();
 
-        ResponseEntity<String> responseEntity = restTemplate.getForEntity(amapUrl, String.class);
-        GdLocation location = JacksonUtil.toObject(responseEntity.getBody(), GdLocation.class);
-        if (location.getStatus() == 1) {
-            Position position = location.getResult();
-            position.setMode(2);
+        try {
+            ResponseEntity<String> responseEntity = restTemplate.getForEntity(amapUrl, String.class);
+            log.info("基站定位: {}", responseEntity.getBody());
 
-            return position;
+            GdLocation location = JacksonUtil.toObject(responseEntity.getBody(), GdLocation.class);
+            if (location.getStatus() == 1) {
+                Position position = location.getResult();
+                position.setMode(2);
+
+                return position;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("基站定位异常: {}!", amapUrl);
         }
 
         return null;
     }
 
-    public Position wifiLocation(String imei, List<WifiInfo> wifiInfoList) throws Exception {
-        //int length = wifiInfoList.size() > 3 ? 3 : wifiInfoList.size();
+    public Position wifiLocation(String imei, List<WifiInfo> wifiInfoList) {
+        int length = wifiInfoList.size() > 3 ? 3 : wifiInfoList.size();
 
         String macs = "";
-        for (int i = 0; i < wifiInfoList.size(); i++) {
+        for (int i = 0; i < length; i++) {
             WifiInfo wifiInfo = wifiInfoList.get(i);
             macs += "|" + wifiInfo.toString();
         }
@@ -88,13 +99,20 @@ public class GdLocationUtil {
                 append("&macs=").append(macs.substring(1));
         amapUrl += strBuf.toString();
 
-        ResponseEntity<String> responseEntity = restTemplate.getForEntity(amapUrl, String.class);
-        GdLocation location = JacksonUtil.toObject(responseEntity.getBody(), GdLocation.class);
-        if (location.getStatus() == 1) {
-            Position position = location.getResult();
-            position.setMode(3);
+        try {
+            ResponseEntity<String> responseEntity = restTemplate.getForEntity(amapUrl, String.class);
+            log.info("WIFI定位: {}", responseEntity.getBody());
 
-            return position;
+            GdLocation location = JacksonUtil.toObject(responseEntity.getBody(), GdLocation.class);
+            if (location.getStatus() == 1) {
+                Position position = location.getResult();
+                position.setMode(3);
+
+                return position;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            log.error("WIFI定位异常: {}!", amapUrl);
         }
 
         return null;
