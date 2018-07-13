@@ -56,7 +56,6 @@ public class SenderController {
         msg.setDevice(device);
         msg.setCmd(cmd);
         msg.setContent(value.getBytes());
-
         MsgSenderTask.send(msg);
 
         return "OK";
