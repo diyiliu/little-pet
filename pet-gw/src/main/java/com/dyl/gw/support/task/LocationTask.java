@@ -1,5 +1,6 @@
 package com.dyl.gw.support.task;
 
+import com.alibaba.druid.util.StringUtils;
 import com.diyiliu.plugin.task.ITask;
 import com.diyiliu.plugin.util.GpsCorrectUtil;
 import com.diyiliu.plugin.util.JacksonUtil;
@@ -14,7 +15,6 @@ import com.dyl.gw.support.model.WifiInfo;
 import com.dyl.gw.support.util.GdLocationUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 

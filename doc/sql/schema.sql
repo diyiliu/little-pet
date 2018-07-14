@@ -1,3 +1,5 @@
+drop table if exists init_data;
+
 drop table if exists pet_gps;
 
 drop table if exists pet_trace;
@@ -5,12 +7,26 @@ drop table if exists pet_trace;
 drop table if exists raw_data;
 
 /*==============================================================*/
+/* Table: init_data                                             */
+/*==============================================================*/
+create table init_data
+(
+   id                   int not null auto_increment,
+   device               varchar(50) comment '设备识别码',
+   datetime             datetime comment '时间',
+   step                 int comment '步数',
+   primary key (id)
+);
+
+alter table init_data comment '初始化数据保存';
+
+/*==============================================================*/
 /* Table: pet_gps                                               */
 /*==============================================================*/
 create table pet_gps
 (
    id                   int not null auto_increment,
-   device_id            int comment '设备ID',
+   device               int comment '设备ID',
    system_time          datetime comment '系统时间',
    gps_time             datetime comment 'GPS时间',
    wgs84_lat            numeric(12,8) comment '原始纬度',
@@ -19,11 +35,12 @@ create table pet_gps
    gcj02_lng            numeric(12,8) comment '高德经度',
    bd09_lat             numeric(12,8) comment '百度纬度',
    bd09_lng             numeric(12,8) comment '百度经度',
-   location             int comment '定位状态(0:无效定位,1:GPS定位, 2:基站定位, 3:WIFI定位)',
+   location             int comment '定位状态(0:无效定位,1:GPS定位,2:WIFI定位,3:基站定位)',
    step                 int comment '步数',
    speed                numeric(5,2) comment '速度',
    direction            int comment '方向',
    altitude             numeric(5,2) comment '海拔',
+   signal               int comment '信号强度',
    satellite            int comment '卫星数',
    voltage              numeric(5,2) comment '电压(%)',
    status               int comment '设备状态',
@@ -38,7 +55,7 @@ alter table pet_gps comment '宠物位置';
 create table pet_trace
 (
    id                   int not null auto_increment,
-   pet_Id               int comment '宠物ID',
+   device_id            int comment '设备ID',
    system_time          datetime comment '系统时间',
    gps_time             datetime comment 'GPS时间',
    wgs84_lat            numeric(12,8) comment '原始纬度',
@@ -54,6 +71,7 @@ create table pet_trace
    speed                numeric(5,2) comment '速度',
    direction            int comment '方向',
    altitude             numeric(5,2) comment '海拔',
+   signal               int comment '信号强度',
    satellite            int comment '卫星数',
    voltage              numeric(5,2) comment '电压(%)',
    primary key (id)
@@ -67,8 +85,8 @@ alter table pet_trace comment '宠物轨迹';
 create table raw_data
 (
    id                   int not null auto_increment,
-   imei                 varchar(50) comment '设备识别码',
-   cmd                  varchar(5) comment '指令ID',
+   device               varchar(50) comment '设备识别码',
+   cmd                  varchar(20) comment '指令ID',
    data                 text comment '内容',
    datetime             datetime comment '时间',
    primary key (id)

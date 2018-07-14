@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class KeepAliveTask implements ITask, Runnable {
-    private final static int MSG_IDLE = 5 * 60 * 1000;
+    private final static int MSG_IDLE = 6 * 60 * 1000;
     private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
 
     @Resource
