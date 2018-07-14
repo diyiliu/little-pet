@@ -12,7 +12,6 @@ import com.dyl.gw.support.model.MsgBody;
 import com.dyl.gw.support.model.WifiInfo;
 import com.dyl.gw.support.task.LocationTask;
 import com.dyl.gw.support.task.MsgSenderTask;
-import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -80,13 +79,23 @@ public class PetDataProcess {
 
         // 心跳
         if ("LK".equals(cmd)) {
-            String resp = "[" + factory + "*" + device + "*" + String.format("%04X", serial) + "*0016*LK," + DateUtil.dateToString(new Date()).replace(" ", ",") + "]";
-            respCmd(device, cmd, serial, resp.getBytes());
+            Calendar calendar = Calendar.getInstance();
+            Date utc = reviseTime(calendar, -1);
 
+            String resp = "[" + factory + "*" + device + "*" + String.format("%04X", serial) + "*0016*LK," + DateUtil.dateToString(utc).replace(" ", ",") + "]";
+            respCmd(device, cmd, serial, resp.getBytes());
 
             int voltage = Integer.valueOf(msgArray[msgArray.length - 1]);
             if (msgArray.length > 2) {
                 int step = Integer.valueOf(msgArray[1]);
+
+                // 同一天内 记步累加
+                if (inSameDay(curGps.getGpsTime(), calendar.getTime())){
+                    if (curGps.getStep() > step){
+
+                        step += curGps.getStep();
+                    }
+                }
                 curGps.setStep(step);
             }
             curGps.setVoltage(voltage);
@@ -104,7 +113,11 @@ public class PetDataProcess {
 
             String dmy = msgArray[1];
             String hms = msgArray[2];
-            Date gpsTime = toDate(dmy, hms);
+            Date date = toDate(dmy, hms);
+            // 修正时差偏移
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            Date gpsTime = reviseTime(calendar, 1);
 
             int location = 0;
             double lat = 0;
@@ -210,7 +223,7 @@ public class PetDataProcess {
         }
 
         // 下发指令应答
-        if (ackCmds.contains(cmd)){
+        if (ackCmds.contains(cmd)) {
             log.info("设备[{}]应答[{}]。", device, content);
 
             return;
@@ -241,6 +254,44 @@ public class PetDataProcess {
 
         return calendar.getTime();
     }
+
+    /**
+     * 修正时差
+     *
+     * @param calendar
+     *
+     * @param offset (1: 正偏移, -1: 负偏移)
+     *
+     * @return
+     */
+    private Date reviseTime(Calendar calendar, int offset) {
+        // 1、取得时间偏移量：
+        int zoneOffset = calendar.get(java.util.Calendar.ZONE_OFFSET);
+        // 2、取得夏令时差：
+        int dstOffset = calendar.get(java.util.Calendar.DST_OFFSET);
+        // 3、从本地时间里扣除这些差量，即可以取得UTC时间：
+        calendar.add(java.util.Calendar.MILLISECOND, offset * (zoneOffset + dstOffset));
+
+        return calendar.getTime();
+    }
+
+    /**
+     * 判断两个日期是否同一天
+     *
+     * @param d1
+     * @param d2
+     * @return
+     */
+    private boolean inSameDay(Date d1, Date d2){
+        Calendar cal1 = Calendar.getInstance();
+        cal1.setTime(d1);
+
+        Calendar cal2 = Calendar.getInstance();
+        cal2.setTime(d2);
+
+        return  cal1.get(Calendar.DAY_OF_MONTH) == cal2.get(Calendar.DAY_OF_MONTH);
+    }
+
 
     private void respCmd(String device, String cmd, int serial, byte[] content) {
         SendMsg msg = new SendMsg();

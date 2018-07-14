@@ -192,10 +192,20 @@ public class TestMain {
     @Test
     public void test10(){
 
-        PetGps petGps = new PetGps();
-        petGps.setSpeed(1.0);
+        // 1、取得本地时间：
+        Calendar cal = Calendar.getInstance() ;
+        // 2、取得时间偏移量：
+        int zoneOffset = cal.get(java.util.Calendar.ZONE_OFFSET);
 
-        PetGpsCur curGps = (PetGpsCur) petGps;
-        System.out.println(curGps.getSpeed());
+        System.out.println(zoneOffset);
+        // 3、取得夏令时差：
+        int dstOffset = cal.get(java.util.Calendar.DST_OFFSET);
+
+        System.out.println(dstOffset);
+        // 4、从本地时间里扣除这些差量，即可以取得UTC时间：
+        cal.add(java.util.Calendar.MILLISECOND, -(zoneOffset + dstOffset));
+        cal.add(java.util.Calendar.MILLISECOND, (zoneOffset + dstOffset));
+
+        System.out.println(DateUtil.dateToString(cal.getTime()));
     }
 }
