@@ -2,7 +2,6 @@ package com.dyl.gw.support.config;
 
 import com.diyiliu.plugin.cache.ICache;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import javax.annotation.Resource;
@@ -14,7 +13,6 @@ import javax.annotation.Resource;
  */
 
 @Configuration
-@EnableScheduling
 public class GwQuartz {
 
     @Resource

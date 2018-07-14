@@ -15,15 +15,14 @@ import com.dyl.gw.support.util.GdLocationUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Description: LocationTask
@@ -34,9 +33,8 @@ import java.util.concurrent.TimeUnit;
  */
 
 @Slf4j
-public class LocationTask implements ITask, Runnable {
-    private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
-
+@Component
+public class LocationTask implements ITask {
     private final static Queue<PetGps> gpsPool = new ConcurrentLinkedQueue();
 
     @Resource
@@ -48,13 +46,8 @@ public class LocationTask implements ITask, Runnable {
     @Resource
     private GdLocationUtil locationUtil;
 
-    @Override
+    @Scheduled(fixedDelay = 1000, initialDelay = 3 * 1000)
     public void execute() {
-        executorService.scheduleAtFixedRate(this, 5, 1, TimeUnit.SECONDS);
-    }
-
-    @Override
-    public void run() {
         while (!gpsPool.isEmpty()) {
             PetGps petGps = gpsPool.poll();
             String petKey = petGps.getPetKey();

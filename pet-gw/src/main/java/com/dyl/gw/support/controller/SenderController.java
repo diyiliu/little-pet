@@ -33,7 +33,7 @@ public class SenderController {
     @Resource
     private PetGpsCurJpa petGpsCurJpa;
 
-    @PostMapping("/")
+    @PostMapping
     @ApiOperation(value = "参数设置", notes = "原始指令参数设置")
     public String setup(@RequestParam long deviceId, @RequestParam String cmd, @RequestParam String value,
                         @RequestParam long rowId, HttpServletResponse response) {
