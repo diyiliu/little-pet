@@ -4,8 +4,6 @@ import com.diyiliu.plugin.cache.ICache;
 import com.diyiliu.plugin.cache.ram.RamCacheProvider;
 import com.diyiliu.plugin.util.SpringUtil;
 import com.dyl.gw.netty.server.PetServer;
-import com.dyl.gw.support.task.KeepAliveTask;
-import com.dyl.gw.support.task.MsgSenderTask;
 import com.dyl.gw.support.util.GdLocationUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -48,22 +46,6 @@ public class GwConfig {
         gwServer.init();
 
         return gwServer;
-    }
-
-    @Bean
-    public MsgSenderTask msgSenderTask() {
-        MsgSenderTask senderTask = new MsgSenderTask();
-        senderTask.execute();
-
-        return senderTask;
-    }
-
-    @Bean
-    public KeepAliveTask keepAliveTask() {
-        KeepAliveTask aliveTask = new KeepAliveTask();
-        aliveTask.execute();
-
-        return aliveTask;
     }
 
     /**

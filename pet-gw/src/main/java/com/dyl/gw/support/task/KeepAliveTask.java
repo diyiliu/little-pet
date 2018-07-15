@@ -7,13 +7,12 @@ import com.diyiliu.plugin.util.DateUtil;
 import com.dyl.gw.support.jpa.dto.PetGpsCur;
 import com.dyl.gw.support.jpa.facade.PetGpsCurJpa;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Description: KeepAliveTask
@@ -22,9 +21,9 @@ import java.util.concurrent.TimeUnit;
  */
 
 @Slf4j
-public class KeepAliveTask implements ITask, Runnable {
+@Component
+public class KeepAliveTask implements ITask {
     private final static int MSG_IDLE = 6 * 60 * 1000;
-    private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
 
     @Resource
     private ICache onlineCacheProvider;
@@ -32,20 +31,14 @@ public class KeepAliveTask implements ITask, Runnable {
     @Resource
     private PetGpsCurJpa petGpsCurJpa;
 
-    @Override
+    @Scheduled(fixedDelay = 30 * 1000, initialDelay = 60 * 1000)
     public void execute() {
-        executorService.scheduleWithFixedDelay(this, 60, 30, TimeUnit.SECONDS);
-    }
-
-    @Override
-    public void run() {
-
         Set<Object> keys = onlineCacheProvider.getKeys();
         keys.stream().forEach(e -> {
 
             MsgPipeline pipeline = (MsgPipeline) onlineCacheProvider.get(e);
             if (System.currentTimeMillis() - pipeline.getTime() > MSG_IDLE ||
-                    !pipeline.getContext().channel().isOpen()){
+                    !pipeline.getContext().channel().isOpen()) {
                 log.info("设备离线[{}], 检测时间[{}]", e, DateUtil.dateToString(new Date()));
 
                 onlineCacheProvider.remove(e);
@@ -58,5 +51,6 @@ public class KeepAliveTask implements ITask, Runnable {
                 petGpsCurJpa.save(curGps);
             }
         });
+
     }
 }
