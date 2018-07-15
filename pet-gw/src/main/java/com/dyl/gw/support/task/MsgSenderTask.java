@@ -8,14 +8,13 @@ import com.dyl.gw.support.jpa.dto.RawData;
 import com.dyl.gw.support.jpa.facade.RawDataJpa;
 import io.netty.buffer.Unpooled;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Description: MsgSenderTask
@@ -24,9 +23,9 @@ import java.util.concurrent.TimeUnit;
  */
 
 @Slf4j
-public class MsgSenderTask implements ITask, Runnable {
+@Component
+public class MsgSenderTask implements ITask {
     private final static Queue<SendMsg> msgPool = new ConcurrentLinkedQueue();
-    private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
 
     @Resource
     private ICache onlineCacheProvider;
@@ -34,13 +33,8 @@ public class MsgSenderTask implements ITask, Runnable {
     @Resource
     private RawDataJpa rawDataJpa;
 
-    @Override
+    @Scheduled(fixedDelay = 1000, initialDelay = 3 * 1000)
     public void execute() {
-        executorService.scheduleAtFixedRate(this, 3, 1, TimeUnit.SECONDS);
-    }
-
-    @Override
-    public void run() {
         while (!msgPool.isEmpty()) {
             SendMsg msg = msgPool.poll();
 
@@ -68,6 +62,7 @@ public class MsgSenderTask implements ITask, Runnable {
             }
         }
     }
+
 
 
     public static void send(SendMsg msg) {

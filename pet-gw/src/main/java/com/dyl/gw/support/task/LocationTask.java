@@ -46,7 +46,7 @@ public class LocationTask implements ITask {
     @Resource
     private GdLocationUtil locationUtil;
 
-    @Scheduled(fixedDelay = 1000, initialDelay = 3 * 1000)
+    @Scheduled(fixedDelay = 1000, initialDelay = 10 * 1000)
     public void execute() {
         while (!gpsPool.isEmpty()) {
             PetGps petGps = gpsPool.poll();
