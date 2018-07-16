@@ -4,8 +4,10 @@ import com.diyiliu.plugin.cache.ICache;
 import com.diyiliu.plugin.model.MsgPipeline;
 import com.diyiliu.plugin.model.SendMsg;
 import com.diyiliu.plugin.util.DateUtil;
+import com.dyl.gw.support.jpa.dto.InitData;
 import com.dyl.gw.support.jpa.dto.PetGps;
 import com.dyl.gw.support.jpa.dto.PetGpsCur;
+import com.dyl.gw.support.jpa.facade.InitDataJpa;
 import com.dyl.gw.support.jpa.facade.PetGpsCurJpa;
 import com.dyl.gw.support.model.BtsInfo;
 import com.dyl.gw.support.model.MsgBody;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Description: PetDataProcess
@@ -34,6 +37,9 @@ public class PetDataProcess {
 
     @Resource
     private PetGpsCurJpa petGpsCurJpa;
+
+    @Resource
+    private InitDataJpa initDataJpa;
 
 
     private List<String> ackCmds = new ArrayList();
@@ -66,16 +72,24 @@ public class PetDataProcess {
         onlineCacheProvider.put(device, new MsgPipeline(ctx, System.currentTimeMillis()));
         log.info("上行, 设备[{}], 指令[{}],  内容: {}", device, cmd, msgBody.getText());
 
+        PetGpsCur curGps = petGpsCurJpa.findByDevice(device);
+        long petId = curGps.getId();
+
         // 初始化
         if ("INIT".equals(cmd)) {
             String resp = "[" + factory + "*" + device + "*" + String.format("%04X", serial) + "*0006*INIT,1]";
+
+            // 先保存 INIT 之前得数据
+            InitData initData = new InitData();
+            initData.setDatetime(curGps.getGpsTime());
+            initData.setDeviceId(curGps.getId());
+            initData.setStep(curGps.getStep());
+            initDataJpa.save(initData);
+
             respCmd(device, cmd, serial, resp.getBytes());
 
             return;
         }
-
-        PetGpsCur curGps = petGpsCurJpa.findByDevice(device);
-        long petId = curGps.getId();
 
         // 心跳
         if ("LK".equals(cmd)) {
@@ -90,13 +104,8 @@ public class PetDataProcess {
                 int step = Integer.valueOf(msgArray[1]);
 
                 // 同一天内 记步累加
-                if (inSameDay(curGps.getGpsTime(), calendar.getTime())){
-                    if (curGps.getStep() > step){
-
-                        step += curGps.getStep();
-                    }
-                }
-                curGps.setStep(step);
+                int initStep = initStep(curGps.getId());
+                curGps.setStep(step + initStep);
             }
             curGps.setVoltage(voltage);
             curGps.setSystemTime(new Date());
@@ -259,9 +268,7 @@ public class PetDataProcess {
      * 修正时差
      *
      * @param calendar
-     *
-     * @param offset (1: 正偏移, -1: 负偏移)
-     *
+     * @param offset   (1: 正偏移, -1: 负偏移)
      * @return
      */
     private Date reviseTime(Calendar calendar, int offset) {
@@ -276,20 +283,26 @@ public class PetDataProcess {
     }
 
     /**
-     * 判断两个日期是否同一天
+     * 当日初始化数据
      *
-     * @param d1
-     * @param d2
+     * @param deviceId
      * @return
      */
-    private boolean inSameDay(Date d1, Date d2){
-        Calendar cal1 = Calendar.getInstance();
-        cal1.setTime(d1);
+    private int initStep(long deviceId) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(new Date());
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        Date start = cal.getTime();
 
-        Calendar cal2 = Calendar.getInstance();
-        cal2.setTime(d2);
+        cal.add(Calendar.DAY_OF_MONTH, 1);
+        Date end = cal.getTime();
 
-        return  cal1.get(Calendar.DAY_OF_MONTH) == cal2.get(Calendar.DAY_OF_MONTH);
+        List<InitData> dataList = initDataJpa.findByDeviceIdAndDatetimeBetween(deviceId, start, end);
+        int result = dataList.stream().collect(Collectors.summingInt(x -> x.getStep()));
+
+        return result;
     }
 
 

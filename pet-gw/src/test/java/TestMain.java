@@ -208,4 +208,22 @@ public class TestMain {
 
         System.out.println(DateUtil.dateToString(cal.getTime()));
     }
+
+    @Test
+    public void test11(){
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(new Date());
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+
+        Date start = cal.getTime();
+
+        cal.add(Calendar.DAY_OF_MONTH, 1);
+        Date end = cal.getTime();
+
+        System.out.println(DateUtil.dateToString(start));
+        System.out.println(DateUtil.dateToString(end));
+    }
 }
