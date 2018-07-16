@@ -22,7 +22,7 @@ import javax.annotation.Resource;
  */
 
 @Configuration
-@PropertySource(value = {"classpath:config.properties"})
+@PropertySource(value = {"classpath:config/config.properties"})
 public class GwConfig {
 
     @Resource
