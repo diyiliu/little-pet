@@ -39,7 +39,7 @@ public class PetController {
     }
 
     @GetMapping("/track")
-    @ApiOperation(value = "轨迹追踪", notes = "查询宠物历史轨迹")
+    @ApiOperation(value = "轨迹追踪", notes = "查询宠物历史轨迹(时间格式:2018-06-16 16:05:43 - 2018-07-17 16:05:43)")
     public List<PetGpsHis> petTrack(@RequestParam long id, @RequestParam String dateTime) {
         String starTime = dateTime.substring(0, 19);
         String endTime = dateTime.substring(22, 41);
