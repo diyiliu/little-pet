@@ -70,7 +70,7 @@ public class PetDataProcess {
 
         // 保持在线
         onlineCacheProvider.put(device, new MsgPipeline(ctx, System.currentTimeMillis()));
-        log.info("上行, 设备[{}], 指令[{}],  内容: {}", device, cmd, msgBody.getText());
+        log.debug("上行, 设备[{}], 指令[{}],  内容: {}", device, cmd, msgBody.getText());
 
         PetGpsCur curGps = petGpsCurJpa.findByDevice(device);
         long petId = curGps.getId();

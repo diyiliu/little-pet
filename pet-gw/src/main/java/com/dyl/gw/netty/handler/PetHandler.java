@@ -3,11 +3,14 @@ package com.dyl.gw.netty.handler;
 import com.diyiliu.plugin.util.SpringUtil;
 import com.dyl.gw.protocol.PetDataProcess;
 import com.dyl.gw.support.model.MsgBody;
+import com.dyl.gw.support.task.KeepAliveTask;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.util.Attribute;
+import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -18,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class PetHandler extends ChannelInboundHandlerAdapter {
+    public final static String NETTY_DEVICE_ID = "DEVICE-ID";
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
@@ -27,9 +31,16 @@ public class PetHandler extends ChannelInboundHandlerAdapter {
         // 断开连接
         ctx.channel().closeFuture().addListener(
                 (ChannelFuture future) -> {
-                    if (future.isDone()) {
-                        log.info("[{}]断开连接...", host);
+                    log.info("[{}]断开连接...", host);
+                    Attribute attribute = ctx.channel().attr(AttributeKey.valueOf(NETTY_DEVICE_ID));
+                    if (attribute == null || attribute.get() == null){
+
+                        return;
                     }
+
+                    String device = (String) attribute.get();
+                    KeepAliveTask aliveTask = SpringUtil.getBean("keepAliveTask");
+                    aliveTask.offline(device);
                 }
         );
     }
@@ -57,9 +68,14 @@ public class PetHandler extends ChannelInboundHandlerAdapter {
         msgBody.setCmd(cmd);
         msgBody.setContent(content);
         msgBody.setText(text);
+
         // 数据解析
         PetDataProcess process = SpringUtil.getBean("petDataProcess");
         process.parse(msgBody, ctx);
+
+        // 绑定
+        Attribute attribute = ctx.channel().attr(AttributeKey.valueOf(NETTY_DEVICE_ID));
+        attribute.set(device);
     }
 
     @Override

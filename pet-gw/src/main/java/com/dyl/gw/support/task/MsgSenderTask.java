@@ -43,7 +43,7 @@ public class MsgSenderTask implements ITask {
             byte[] content = msg.getContent();
 
             if (onlineCacheProvider.containsKey(device)) {
-                log.info("下行, 设备[{}], 指令[{}],  内容: {}", device, cmd, new String(content));
+                log.debug("下行, 设备[{}], 指令[{}],  内容: {}", device, cmd, new String(content));
 
                 MsgPipeline pipeline = (MsgPipeline) onlineCacheProvider.get(device);
                 pipeline.getContext().writeAndFlush(Unpooled.copiedBuffer(content));
