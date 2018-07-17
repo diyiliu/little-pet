@@ -273,11 +273,11 @@ public class PetDataProcess {
      */
     private Date reviseTime(Calendar calendar, int offset) {
         // 1、取得时间偏移量：
-        int zoneOffset = calendar.get(java.util.Calendar.ZONE_OFFSET);
+        int zoneOffset = calendar.get(Calendar.ZONE_OFFSET);
         // 2、取得夏令时差：
-        int dstOffset = calendar.get(java.util.Calendar.DST_OFFSET);
+        int dstOffset = calendar.get(Calendar.DST_OFFSET);
         // 3、从本地时间里扣除这些差量，即可以取得UTC时间：
-        calendar.add(java.util.Calendar.MILLISECOND, offset * (zoneOffset + dstOffset));
+        calendar.add(Calendar.MILLISECOND, offset * (zoneOffset + dstOffset));
 
         return calendar.getTime();
     }

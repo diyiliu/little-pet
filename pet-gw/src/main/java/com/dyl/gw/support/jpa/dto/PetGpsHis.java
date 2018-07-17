@@ -1,5 +1,6 @@
 package com.dyl.gw.support.jpa.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -20,8 +21,10 @@ public class PetGpsHis extends PetGps{
 
     private Long deviceId;
 
+    @JsonIgnore
     private String btsData;
 
+    @JsonIgnore
     private String wifiData;
 
     public Long getId() {
