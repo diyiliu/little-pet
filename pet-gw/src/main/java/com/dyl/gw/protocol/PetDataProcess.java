@@ -80,11 +80,7 @@ public class PetDataProcess {
             String resp = "[" + factory + "*" + device + "*" + String.format("%04X", serial) + "*0006*INIT,1]";
 
             // 先保存 INIT 之前得数据
-            InitData initData = new InitData();
-            initData.setDatetime(curGps.getGpsTime());
-            initData.setDeviceId(curGps.getId());
-            initData.setStep(curGps.getStep());
-            initDataJpa.save(initData);
+            toInitData(curGps);
 
             respCmd(device, cmd, serial, resp.getBytes());
 
@@ -103,15 +99,24 @@ public class PetDataProcess {
             if (msgArray.length > 2) {
                 int step = Integer.valueOf(msgArray[1]);
 
-                // 修正记步异常
-                if (step == 0 && inSameDay(curGps.getSystemTime(), new Date())){
+                Date now = new Date();
+                if (step == 0 && inSameDay(curGps.getSystemTime(), now)){
 
                     return;
                 }
 
                 // 同一天内 记步累加
                 int initStep = initStep(curGps.getId());
-                curGps.setStep(step + initStep);
+                step += initStep;
+
+                // 记步数据异常
+                if (step < curGps.getStep() && inSameDay(curGps.getSystemTime(), now)){
+                    toInitData(curGps);
+
+                    step += curGps.getStep();
+                }
+
+                curGps.setStep(step);
             }
             curGps.setVoltage(voltage);
             curGps.setSystemTime(new Date());
@@ -328,6 +333,20 @@ public class PetDataProcess {
         String str2 = DateUtil.dateToString(d2, "%1$tY-%1$tm-%1$td");
 
         return str1.equals(str2);
+    }
+
+    /**
+     * 保存数据
+     *
+     * @param gpsCur
+     */
+    private void toInitData(PetGpsCur gpsCur){
+        InitData initData = new InitData();
+        initData.setDatetime(gpsCur.getGpsTime());
+        initData.setDeviceId(gpsCur.getId());
+        initData.setStep(gpsCur.getStep());
+
+        initDataJpa.save(initData);
     }
 
 
