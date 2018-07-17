@@ -103,6 +103,12 @@ public class PetDataProcess {
             if (msgArray.length > 2) {
                 int step = Integer.valueOf(msgArray[1]);
 
+                // 修正记步异常
+                if (step == 0 && inSameDay(curGps.getSystemTime(), new Date())){
+
+                    return;
+                }
+
                 // 同一天内 记步累加
                 int initStep = initStep(curGps.getId());
                 curGps.setStep(step + initStep);
@@ -303,6 +309,25 @@ public class PetDataProcess {
         int result = dataList.stream().collect(Collectors.summingInt(x -> x.getStep()));
 
         return result;
+    }
+
+    /**
+     * 判断两个日期是否同一天
+     *
+     * @param d1
+     * @param d2
+     * @return
+     */
+    private boolean inSameDay(Date d1, Date d2) {
+        if (d1 == null || d2 == null) {
+
+            return false;
+        }
+
+        String str1 = DateUtil.dateToString(d1, "%1$tY-%1$tm-%1$td");
+        String str2 = DateUtil.dateToString(d2, "%1$tY-%1$tm-%1$td");
+
+        return str1.equals(str2);
     }
 
 
