@@ -2,9 +2,13 @@ drop table if exists init_data;
 
 drop table if exists pet_gps;
 
+drop table if exists pet_info;
+
 drop table if exists pet_trace;
 
 drop table if exists raw_data;
+
+drop table if exists user_info;
 
 /*==============================================================*/
 /* Table: init_data                                             */
@@ -50,6 +54,24 @@ create table pet_gps
 alter table pet_gps comment '宠物位置';
 
 /*==============================================================*/
+/* Table: pet_info                                              */
+/*==============================================================*/
+create table pet_info
+(
+   id                   int not null auto_increment,
+   device_id            int comment '设备ID',
+   user_id              int comment '用户ID',
+   name                 varchar(50) comment '名称',
+   sex                  varchar(10) comment '性别',
+   breed                varchar(100) comment '品种',
+   birthday             datetime comment '出生时间',
+   breed_date           date comment '喂养时间',
+   primary key (id)
+);
+
+alter table pet_info comment '宠物信息';
+
+/*==============================================================*/
 /* Table: pet_trace                                             */
 /*==============================================================*/
 create table pet_trace
@@ -93,3 +115,21 @@ create table raw_data
 );
 
 alter table raw_data comment '原始指令';
+
+/*==============================================================*/
+/* Table: user_info                                             */
+/*==============================================================*/
+create table user_info
+(
+   id                   int not null auto_increment,
+   username             varchar(50) comment '用户名',
+   password             varchar(100) comment '密码',
+   name                 varchar(30) comment '姓名',
+   wechat               varchar(50) comment '微信号',
+   tel                  varchar(20) comment '手机号',
+   email                varchar(80) comment '邮箱',
+   address              varchar(200) comment '住址',
+   primary key (id)
+);
+
+alter table user_info comment '用户信息';

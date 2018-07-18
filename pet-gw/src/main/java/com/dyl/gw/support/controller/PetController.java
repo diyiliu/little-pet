@@ -7,12 +7,17 @@ import com.dyl.gw.support.jpa.facade.PetGpsCurJpa;
 import com.dyl.gw.support.jpa.facade.PetGpsHisJpa;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Description: PetController
@@ -30,6 +35,23 @@ public class PetController {
 
     @Resource
     private PetGpsHisJpa petGpsHisJpa;
+
+
+    @PostMapping("/petList")
+    @ApiOperation(value = "实时信息", notes = "分页查询宠物信息")
+    public Map petList(@RequestParam int page, @RequestParam int size,
+                       @RequestParam(required = false) String search) {
+
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "systemTime"));
+        Page<PetGpsCur> petInfoPage = petGpsCurJpa.findAll(pageable);
+
+        Map respMap = new HashMap();
+        respMap.put("data", petInfoPage.getContent());
+        respMap.put("total", petInfoPage.getTotalElements());
+
+        return respMap;
+    }
+
 
     @GetMapping("/find/{id}")
     @ApiOperation(value = "实时信息", notes = "查询宠物当前信息")

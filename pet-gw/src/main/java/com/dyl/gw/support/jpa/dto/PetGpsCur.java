@@ -16,6 +16,9 @@ public class PetGpsCur extends PetGps{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @OneToOne(mappedBy = "petGpsCur")
+    private PetInfo petInfo;
+
     private String device;
 
     /** 设备在线状态 0:离线, 1:在线*/
@@ -43,5 +46,13 @@ public class PetGpsCur extends PetGps{
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public PetInfo getPetInfo() {
+        return petInfo;
+    }
+
+    public void setPetInfo(PetInfo petInfo) {
+        this.petInfo = petInfo;
     }
 }
