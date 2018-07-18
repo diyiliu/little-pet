@@ -1,7 +1,6 @@
 # WEB PROPERTIES
 server:
   port: 880
-  context-path: '/'
 
 # SPRING
 spring:

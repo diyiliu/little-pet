@@ -1,7 +1,10 @@
 # WEB PROPERTIES
 server:
   port: 880
-  context-path: '/'
+  ssl:
+    key-store: 'classpath:config/keystore.pfx'
+    key-store-password: 214576205430625
+    key-store-type: PKCS12
 
 # SPRING
 spring:
