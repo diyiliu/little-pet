@@ -13,3 +13,6 @@ spring:
 # LOGGING
 logging:
   config: 'classpath:config/logback.xml'
+
+http:
+  port: 8800

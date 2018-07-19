@@ -9,9 +9,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
-import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 
@@ -28,7 +25,6 @@ public class GwConfig {
     @Resource
     private Environment environment;
 
-
     @Bean
     public GdLocationUtil locationUtil(){
         GdLocationUtil locationUtil = new GdLocationUtil();
@@ -37,7 +33,6 @@ public class GwConfig {
 
         return locationUtil;
     }
-
 
     @Bean
     public PetServer petServer() {
@@ -79,18 +74,5 @@ public class GwConfig {
     public ICache petCacheProvider() {
 
         return new RamCacheProvider();
-    }
-
-    @Bean
-    public RestTemplate restTemplate(ClientHttpRequestFactory factory) {
-        return new RestTemplate(factory);
-    }
-
-    @Bean
-    public ClientHttpRequestFactory simpleClientHttpRequestFactory() {
-        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setReadTimeout(180000);
-        factory.setConnectTimeout(120000);
-        return factory;
     }
 }
