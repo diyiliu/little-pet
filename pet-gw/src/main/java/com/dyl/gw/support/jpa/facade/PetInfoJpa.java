@@ -10,5 +10,4 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface PetInfoJpa extends JpaRepository<PetInfo, Long> {
 
-
 }
