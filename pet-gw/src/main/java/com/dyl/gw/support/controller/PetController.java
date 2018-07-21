@@ -97,9 +97,12 @@ public class PetController {
                 (Root<PetGpsHis> root, CriteriaQuery<?> query, CriteriaBuilder cb) -> {
                     Path<Date> createTimeExp = root.get("gpsTime");
                     Path<String> deviceIdExp = root.get("deviceId");
+                    Path<Integer> locationExp = root.get("location");
+
                     List<Predicate> list = new ArrayList();
                     list.add(cb.equal(deviceIdExp, gpsCur.getId()));
                     list.add(cb.between(createTimeExp, sTime, eTime));
+                    list.add(cb.greaterThan(locationExp, 0));
 
                     Predicate[] predicates = list.toArray(new Predicate[]{});
                     return cb.and(predicates);
