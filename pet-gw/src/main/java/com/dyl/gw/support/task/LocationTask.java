@@ -1,6 +1,5 @@
 package com.dyl.gw.support.task;
 
-import com.alibaba.druid.util.StringUtils;
 import com.diyiliu.plugin.task.ITask;
 import com.diyiliu.plugin.util.GpsCorrectUtil;
 import com.diyiliu.plugin.util.JacksonUtil;
@@ -17,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -47,6 +47,7 @@ public class LocationTask implements ITask {
     private GdLocationUtil locationUtil;
 
     @Scheduled(fixedDelay = 1000, initialDelay = 10 * 1000)
+    @Override
     public void execute() {
         while (!gpsPool.isEmpty()) {
             PetGps petGps = gpsPool.poll();
